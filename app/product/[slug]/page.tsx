@@ -106,7 +106,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {/* Thumbnail Gallery */}
               {product.images.length > 1 && (
                 <div className="grid grid-cols-4 gap-2">
-                  {product.images.slice(0, 4).map((image, index) => (
+                  {product.images.slice(0, 4).map((image: any, index: number) => (
                     <div key={image.id} className="relative aspect-square overflow-hidden rounded-lg bg-gray-50">
                       <Image
                         src={image.src}
@@ -128,7 +128,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </h1>
                 {product.categories.length > 0 && (
                   <div className="flex gap-2">
-                    {product.categories.map((category) => (
+                    {product.categories.map((category: any) => (
                       <Link
                         key={category.id}
                         href={`/categories/${category.slug}`}
