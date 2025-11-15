@@ -18,7 +18,14 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function generateStaticParams() {
+  // Skip static generation during build
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    return [];
+  }
+
   try {
     const { products } = await getProducts({ per_page: 100 });
     return products.map((product: any) => ({

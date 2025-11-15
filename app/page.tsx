@@ -6,6 +6,7 @@ import { VehicleSelector } from '@/components/vehicle/VehicleSelector';
 import { getProducts } from '@/lib/woocommerce';
 import { Truck, Shield, Wrench, Headphones, Star, TrendingUp } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function Home() {

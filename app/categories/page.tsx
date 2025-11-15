@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { getCategories } from '@/lib/woocommerce';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // Revalidate every hour
 
 export default async function CategoriesPage() {
