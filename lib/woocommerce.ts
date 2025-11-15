@@ -3,8 +3,8 @@ import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
 // Initialize WooCommerce API
 const api = new WooCommerceRestApi({
   url: process.env.NEXT_PUBLIC_WORDPRESS_URL || '',
-  consumerKey: process.env.WOOCOMMERCE_CONSUMER_KEY || '',
-  consumerSecret: process.env.WOOCOMMERCE_CONSUMER_SECRET || '',
+  consumerKey: process.env.NEXT_PUBLIC_WC_CONSUMER_KEY || '',
+  consumerSecret: process.env.NEXT_PUBLIC_WC_CONSUMER_SECRET || '',
   version: "wc/v3",
   queryStringAuth: true, // Force Basic Authentication as query string
 });
