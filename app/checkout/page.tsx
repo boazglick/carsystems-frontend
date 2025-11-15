@@ -261,7 +261,7 @@ export default function CheckoutPage() {
                       <div key={item.product.id} className="flex gap-3">
                         <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
                           <Image
-                            src={item.product.images[0]?.src || '/placeholder.png'}
+                            src={item.product.images[0]?.src || '/placeholder.svg'}
                             alt={item.product.name}
                             fill
                             className="object-cover"

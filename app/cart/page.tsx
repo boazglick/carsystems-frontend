@@ -69,7 +69,7 @@ export default function CartPage() {
                     className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100"
                   >
                     <Image
-                      src={item.product.images[0]?.src || '/placeholder.png'}
+                      src={item.product.images[0]?.src || '/placeholder.svg'}
                       alt={item.product.name}
                       fill
                       className="object-cover"

@@ -74,7 +74,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {/* Main Image */}
               <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-50">
                 <Image
-                  src={product.images[0]?.src || '/placeholder.png'}
+                  src={product.images[0]?.src || '/placeholder.svg'}
                   alt={product.name}
                   fill
                   className="object-cover"

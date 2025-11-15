@@ -30,7 +30,7 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Image Container */}
       <Link href={`/product/${product.slug}`} className="relative aspect-square overflow-hidden bg-gray-50">
         <Image
-          src={product.images[0]?.src || '/placeholder.png'}
+          src={product.images[0]?.src || '/placeholder.svg'}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
