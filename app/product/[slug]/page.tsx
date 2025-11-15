@@ -21,7 +21,7 @@ interface ProductPageProps {
 export async function generateStaticParams() {
   try {
     const { products } = await getProducts({ per_page: 100 });
-    return products.map((product) => ({
+    return products.map((product: any) => ({
       slug: product.slug,
     }));
   } catch (error) {
