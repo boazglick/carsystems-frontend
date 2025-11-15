@@ -9,8 +9,9 @@ export function CartIcon() {
   const [mounted, setMounted] = useState(false);
   const itemCount = useCartStore((state) => state.getItemCount());
 
-  // Only show cart count after client-side hydration to avoid mismatch
+  // Manually hydrate the store and show cart count after client-side hydration
   useEffect(() => {
+    useCartStore.persist.rehydrate();
     setMounted(true);
   }, []);
 

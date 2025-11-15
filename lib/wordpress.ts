@@ -3,7 +3,9 @@
  * For fetching pages, posts, and other WordPress content
  */
 
-const WORDPRESS_API_URL = process.env.WORDPRESS_API_URL || '';
+const WORDPRESS_API_URL = process.env.NEXT_PUBLIC_WORDPRESS_URL
+  ? `${process.env.NEXT_PUBLIC_WORDPRESS_URL}/wp-json`
+  : '';
 
 export interface WordPressPage {
   id: number;
