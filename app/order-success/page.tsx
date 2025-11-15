@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { CheckCircle, Package, Home } from 'lucide-react';
 
-export default function OrderSuccessPage() {
+export const dynamic = 'force-dynamic';
+
+function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('order');
   const [order, setOrder] = useState<any>(null);
@@ -81,5 +83,21 @@ export default function OrderSuccessPage() {
         </div>
       </div>
     </MainLayout>
+  );
+}
+
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={
+      <MainLayout>
+        <div className="container mx-auto px-4 py-20">
+          <div className="text-center">
+            <p>טוען...</p>
+          </div>
+        </div>
+      </MainLayout>
+    }>
+      <OrderSuccessContent />
+    </Suspense>
   );
 }
