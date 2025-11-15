@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProducts, getCategories } from '@/lib/woocommerce';
 
+export const dynamic = 'force-dynamic';
+
 interface RouteContext {
   params: Promise<{ slug: string }>;
 }
