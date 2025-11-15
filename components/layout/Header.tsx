@@ -1,8 +1,13 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
-import { Search, Menu } from 'lucide-react';
+import { Search, Menu, X } from 'lucide-react';
 import { CartIcon } from './CartIcon';
 
 export function Header() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
       <div className="container mx-auto px-4">
@@ -31,8 +36,16 @@ export function Header() {
           <div className="flex items-center gap-4">
             <CartIcon />
 
-            <button className="rounded-full p-2 hover:bg-gray-100 transition-colors md:hidden">
-              <Menu className="h-6 w-6 text-gray-700" />
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="rounded-full p-2 hover:bg-gray-100 transition-colors md:hidden"
+              aria-label="תפריט"
+            >
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6 text-gray-700" />
+              ) : (
+                <Menu className="h-6 w-6 text-gray-700" />
+              )}
             </button>
           </div>
         </div>
@@ -100,6 +113,95 @@ export function Header() {
           />
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <nav className="border-t bg-white md:hidden">
+          <ul className="py-2">
+            <li>
+              <Link
+                href="/"
+                className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-navy transition-colors font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                דף הבית
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/products"
+                className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-navy transition-colors font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                כל המוצרים
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/categories/safety"
+                className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-navy transition-colors font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                מערכות בטיחות
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/categories/multimedia"
+                className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-navy transition-colors font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                מולטימדיה
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/categories/gps"
+                className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-navy transition-colors font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                GPS ונווטים
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/categories/sensors"
+                className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-navy transition-colors font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                חיישנים
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/categories/cameras"
+                className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-navy transition-colors font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                מצלמות רכב
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/page/about"
+                className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-navy transition-colors font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                אודות
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/blog"
+                className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-navy transition-colors font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                בלוג
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      )}
     </header>
   );
 }
