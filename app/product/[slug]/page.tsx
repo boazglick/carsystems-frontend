@@ -7,12 +7,15 @@ import {
   calculateDiscount,
   calculateMonthlyPayment,
   hasFreeShipping,
-  getProductMeta
+  getProductMeta,
+  getVehicleCompatibility,
+  isUniversalFit
 } from '@/types/product';
 import { formatPrice } from '@/lib/utils';
-import { Truck, Shield, Package, ChevronLeft } from 'lucide-react';
+import { Truck, Shield, Package, ChevronLeft, Car } from 'lucide-react';
 import { AddToCartButton } from '@/components/product/AddToCartButton';
 import { BuyNowButton } from '@/components/product/BuyNowButton';
+import { VEHICLE_BRANDS } from '@/types/vehicle';
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -49,6 +52,38 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const showFreeShipping = hasFreeShipping(product);
   const showMonthlyPayment = meta._enable_monthly_payment === 'yes';
   const months = parseInt(meta._monthly_payment_months || '12');
+
+  // Get vehicle compatibility
+  const universal = isUniversalFit(product);
+  const compatibility = getVehicleCompatibility(product);
+
+  // Debug logging
+  console.log('===== PRODUCT PAGE DEBUG =====');
+  console.log(`Product: ${product.name}`);
+  console.log(`  Universal fit:`, universal);
+  console.log(`  Compatibility:`, compatibility);
+  console.log(`  vehicle_compatibility (API):`, product.vehicle_compatibility);
+  console.log(`  universal_fit (API):`, product.universal_fit);
+  console.log(`  Raw meta_data:`, product.meta_data?.filter(m =>
+    m.key === '_vehicle_compatibility' || m.key === '_universal_fit'
+  ));
+  console.log('==============================');
+
+  // Extract unique brands from compatibility patterns
+  const compatibleBrands = !universal && compatibility.length > 0
+    ? Array.from(new Set(
+        compatibility
+          .map(pattern => {
+            const brandMatch = pattern.match(/brand:([^,]+)/);
+            return brandMatch ? brandMatch[1] : null;
+          })
+          .filter(Boolean)
+      ))
+    : [];
+
+  // Get brand display names
+  const brandNames = compatibleBrands
+    .map(brandId => VEHICLE_BRANDS.find(b => b.id === brandId)?.name || brandId);
 
   return (
     <MainLayout>
@@ -134,7 +169,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   {product.name}
                 </h1>
                 {product.categories.length > 0 && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mb-3">
                     {product.categories.map((category: any) => (
                       <Link
                         key={category.id}
@@ -144,6 +179,24 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         {category.name}
                       </Link>
                     ))}
+                  </div>
+                )}
+
+                {/* Vehicle Compatibility Badge */}
+                {universal ? (
+                  <div className="inline-flex items-center gap-2 bg-green/10 text-green px-4 py-2 rounded-full">
+                    <Car className="h-4 w-4" />
+                    <span className="text-sm font-semibold">מתאים לכל הרכבים</span>
+                  </div>
+                ) : brandNames.length > 0 ? (
+                  <div className="inline-flex items-center gap-2 bg-navy/10 text-navy px-4 py-2 rounded-full">
+                    <Car className="h-4 w-4" />
+                    <span className="text-sm font-semibold">מתאים ל: {brandNames.join(', ')}</span>
+                  </div>
+                ) : (
+                  <div className="inline-flex items-center gap-2 bg-gray-100 text-gray-500 px-4 py-2 rounded-full">
+                    <Car className="h-4 w-4" />
+                    <span className="text-sm font-semibold">לא צוין התאמה לרכב</span>
                   </div>
                 )}
               </div>
