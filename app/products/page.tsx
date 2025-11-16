@@ -23,6 +23,18 @@ export default function ProductsPage() {
     fetchProducts();
   }, [currentPage, sortBy, filterOnSale]);
 
+  // Auto-search with debounce
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (search !== '') {
+        setCurrentPage(1);
+        fetchProducts();
+      }
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(timeoutId);
+  }, [search]);
+
   const fetchProducts = async () => {
     setLoading(true);
     try {
@@ -91,15 +103,23 @@ export default function ProductsPage() {
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               {/* Search */}
               <form onSubmit={handleSearch} className="flex-1 max-w-md">
-                <div className="relative">
-                  <Search className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
-                  <input
-                    type="search"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="חפש מוצרים..."
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pr-10 text-right text-gray-900 placeholder:text-gray-500 focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/20"
-                  />
+                <div className="relative flex gap-2">
+                  <div className="relative flex-1">
+                    <Search className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                    <input
+                      type="search"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder="חפש מוצרים..."
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pr-10 text-right text-gray-900 placeholder:text-gray-500 focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/20"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="rounded-lg bg-navy px-6 py-2 font-semibold text-white transition-all hover:bg-navy-light whitespace-nowrap"
+                  >
+                    חפש
+                  </button>
                 </div>
               </form>
 
