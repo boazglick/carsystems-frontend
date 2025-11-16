@@ -64,7 +64,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   console.log(`  Compatibility:`, compatibility);
   console.log(`  vehicle_compatibility (API):`, product.vehicle_compatibility);
   console.log(`  universal_fit (API):`, product.universal_fit);
-  console.log(`  Raw meta_data:`, product.meta_data?.filter(m =>
+  console.log(`  Raw meta_data:`, product.meta_data?.filter((m: any) =>
     m.key === '_vehicle_compatibility' || m.key === '_universal_fit'
   ));
   console.log('==============================');
