@@ -23,10 +23,24 @@ export default async function Home() {
 
   return (
     <MainLayout>
-      {/* Hero Section with Background Image */}
+      {/* Hero Section with Vehicle Selector */}
       <section className="relative bg-white overflow-hidden">
         <div className="absolute inset-0 bg-navy/5"></div>
-        <div className="container mx-auto px-4 py-20 md:py-32 relative">
+        <div className="container mx-auto px-4 py-12 md:py-20 relative">
+          {/* Vehicle Selector - Top */}
+          <div className="max-w-4xl mx-auto mb-16">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">
+                מצא מוצרים תואמים לרכב שלך
+              </h2>
+              <p className="text-base md:text-lg text-gray-600">
+                הזן מספר רישוי או בחר ידנית את דגם הרכב - נציג לך רק מוצרים תואמים
+              </p>
+            </div>
+            <VehicleSelector />
+          </div>
+
+          {/* Hero Content */}
           <div className="grid gap-12 lg:grid-cols-2 items-center">
             {/* Text Content */}
             <div className="text-center lg:text-right">
@@ -72,23 +86,6 @@ export default async function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-navy/30 to-transparent"></div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Vehicle Selector Section - Prominent CTA */}
-      <section className="py-16 bg-gradient-to-br from-navy/5 via-white to-navy/5">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold text-navy mb-3">
-                מצא מוצרים תואמים לרכב שלך
-              </h2>
-              <p className="text-lg text-gray-600">
-                הזן מספר רישוי או בחר ידנית את דגם הרכב - נציג לך רק מוצרים תואמים
-              </p>
-            </div>
-            <VehicleSelector />
           </div>
         </div>
       </section>
