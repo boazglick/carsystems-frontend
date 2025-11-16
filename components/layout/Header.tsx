@@ -1,23 +1,79 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, Menu, X } from 'lucide-react';
+import { Search, Menu, X, Loader2 } from 'lucide-react';
 import { CartIcon } from './CartIcon';
+
+interface SearchResult {
+  id: number;
+  name: string;
+  price: string;
+  slug: string;
+  images: Array<{ src: string; alt: string }>;
+}
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Live search with debounce
+  useEffect(() => {
+    const timeoutId = setTimeout(async () => {
+      if (searchQuery.trim().length >= 2) {
+        setIsSearching(true);
+        try {
+          const response = await fetch(`/api/products?search=${encodeURIComponent(searchQuery)}&per_page=5`);
+          const data = await response.json();
+          setSearchResults(data.products || []);
+          setShowResults(true);
+        } catch (error) {
+          console.error('Search error:', error);
+          setSearchResults([]);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        setSearchResults([]);
+        setShowResults(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
       setSearchQuery('');
+      setShowResults(false);
       setMobileMenuOpen(false);
     }
+  };
+
+  const handleResultClick = () => {
+    setSearchQuery('');
+    setShowResults(false);
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -34,16 +90,66 @@ export function Header() {
 
           {/* Search Bar - Desktop */}
           <div className="hidden flex-1 px-8 md:block">
-            <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto">
-              <Search className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500 pointer-events-none" />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="חפש מוצרים..."
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pr-10 text-right text-gray-900 placeholder:text-gray-500 focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/20"
-              />
-            </form>
+            <div ref={searchRef} className="relative max-w-2xl mx-auto">
+              <form onSubmit={handleSearch} className="relative">
+                <Search className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                {isSearching && (
+                  <Loader2 className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-navy animate-spin" />
+                )}
+                <input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="חפש מוצרים..."
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pr-10 text-right text-gray-900 placeholder:text-gray-500 focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/20"
+                />
+              </form>
+
+              {/* Search Results Dropdown */}
+              {showResults && searchQuery.trim().length >= 2 && (
+                <div className="absolute top-full mt-2 w-full bg-white rounded-lg border border-gray-200 shadow-xl max-h-96 overflow-y-auto z-50">
+                  {searchResults.length > 0 ? (
+                    <>
+                      {searchResults.map((product) => (
+                        <Link
+                          key={product.id}
+                          href={`/product/${product.slug}`}
+                          onClick={handleResultClick}
+                          className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b last:border-b-0"
+                        >
+                          {product.images && product.images[0] ? (
+                            <img
+                              src={product.images[0].src}
+                              alt={product.images[0].alt || product.name}
+                              className="w-12 h-12 object-cover rounded"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">
+                              אין תמונה
+                            </div>
+                          )}
+                          <div className="flex-1 text-right">
+                            <div className="font-semibold text-gray-900" dangerouslySetInnerHTML={{ __html: product.name }} />
+                            <div className="text-sm text-navy font-semibold">₪{product.price}</div>
+                          </div>
+                        </Link>
+                      ))}
+                      <Link
+                        href={`/products?search=${encodeURIComponent(searchQuery)}`}
+                        onClick={handleResultClick}
+                        className="block p-3 text-center text-navy font-semibold hover:bg-navy hover:text-white transition-colors"
+                      >
+                        הצג את כל התוצאות ({searchResults.length > 5 ? 'עוד' : searchResults.length})
+                      </Link>
+                    </>
+                  ) : !isSearching ? (
+                    <div className="p-4 text-center text-gray-500">
+                      לא נמצאו תוצאות עבור "{searchQuery}"
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Actions */}
@@ -118,16 +224,66 @@ export function Header() {
 
       {/* Mobile Search */}
       <div className="border-t px-4 py-3 md:hidden">
-        <form onSubmit={handleSearch} className="relative">
-          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 pointer-events-none" />
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="חפש מוצרים..."
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pr-10 text-right text-sm text-gray-900 placeholder:text-gray-500 focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/20"
-          />
-        </form>
+        <div className="relative">
+          <form onSubmit={handleSearch} className="relative">
+            <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 pointer-events-none" />
+            {isSearching && (
+              <Loader2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy animate-spin" />
+            )}
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="חפש מוצרים..."
+              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pr-10 text-right text-sm text-gray-900 placeholder:text-gray-500 focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/20"
+            />
+          </form>
+
+          {/* Mobile Search Results Dropdown */}
+          {showResults && searchQuery.trim().length >= 2 && (
+            <div className="absolute top-full mt-2 w-full bg-white rounded-lg border border-gray-200 shadow-xl max-h-80 overflow-y-auto z-50">
+              {searchResults.length > 0 ? (
+                <>
+                  {searchResults.map((product) => (
+                    <Link
+                      key={product.id}
+                      href={`/product/${product.slug}`}
+                      onClick={handleResultClick}
+                      className="flex items-center gap-2 p-2 hover:bg-gray-50 transition-colors border-b last:border-b-0"
+                    >
+                      {product.images && product.images[0] ? (
+                        <img
+                          src={product.images[0].src}
+                          alt={product.images[0].alt || product.name}
+                          className="w-10 h-10 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">
+                          אין
+                        </div>
+                      )}
+                      <div className="flex-1 text-right">
+                        <div className="text-sm font-semibold text-gray-900" dangerouslySetInnerHTML={{ __html: product.name }} />
+                        <div className="text-xs text-navy font-semibold">₪{product.price}</div>
+                      </div>
+                    </Link>
+                  ))}
+                  <Link
+                    href={`/products?search=${encodeURIComponent(searchQuery)}`}
+                    onClick={handleResultClick}
+                    className="block p-2 text-center text-sm text-navy font-semibold hover:bg-navy hover:text-white transition-colors"
+                  >
+                    הצג את כל התוצאות
+                  </Link>
+                </>
+              ) : !isSearching ? (
+                <div className="p-3 text-center text-sm text-gray-500">
+                  לא נמצאו תוצאות עבור "{searchQuery}"
+                </div>
+              ) : null}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Mobile Menu */}
