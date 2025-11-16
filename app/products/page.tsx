@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -10,7 +10,7 @@ import { Vehicle } from '@/types/vehicle';
 import { isProductCompatible } from '@/lib/vehicle-api';
 import { Search, SlidersHorizontal } from 'lucide-react';
 
-export default function ProductsPage() {
+function ProductsContent() {
   const searchParams = useSearchParams();
   const urlSearch = searchParams.get('search') || '';
 
@@ -246,5 +246,24 @@ export default function ProductsPage() {
         </div>
       </div>
     </MainLayout>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <MainLayout>
+        <div className="bg-gray-50 min-h-screen py-8">
+          <div className="container mx-auto px-4">
+            <div className="text-center py-12">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-navy border-r-transparent"></div>
+              <p className="mt-4 text-gray-600">טוען מוצרים...</p>
+            </div>
+          </div>
+        </div>
+      </MainLayout>
+    }>
+      <ProductsContent />
+    </Suspense>
   );
 }
