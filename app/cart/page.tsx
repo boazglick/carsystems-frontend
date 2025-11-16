@@ -103,18 +103,18 @@ export default function CartPage() {
                           onClick={() =>
                             updateQuantity(item.product.id, item.quantity - 1)
                           }
-                          className="rounded-lg border border-gray-300 p-1.5 hover:bg-gray-100 transition-colors"
+                          className="rounded-lg border border-gray-300 bg-white p-1.5 text-gray-700 hover:bg-gray-100 hover:text-navy transition-colors"
                         >
                           <Minus className="h-4 w-4" />
                         </button>
-                        <span className="w-12 text-center font-medium">
+                        <span className="w-12 text-center font-medium text-gray-900">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() =>
                             updateQuantity(item.product.id, item.quantity + 1)
                           }
-                          className="rounded-lg border border-gray-300 p-1.5 hover:bg-gray-100 transition-colors"
+                          className="rounded-lg border border-gray-300 bg-white p-1.5 text-gray-700 hover:bg-gray-100 hover:text-navy transition-colors"
                         >
                           <Plus className="h-4 w-4" />
                         </button>
