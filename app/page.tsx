@@ -59,17 +59,17 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Hero Image Placeholder */}
+            {/* Hero Image */}
             <div className="relative hidden lg:block">
-              <div className="relative aspect-square rounded-3xl bg-gradient-to-br from-navy/10 to-navy/5 p-8 shadow-2xl">
-                <div className="absolute inset-0 rounded-3xl bg-white/50 backdrop-blur-sm"></div>
-                <div className="relative h-full flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-8xl mb-4">🚗</div>
-                    <p className="text-navy font-semibold text-lg">תמונת Hero</p>
-                    <p className="text-gray-600 text-sm">רכב עם מערכות מתקדמות</p>
-                  </div>
-                </div>
+              <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
+                <Image
+                  src="https://images.unsplash.com/photo-1619405399517-d7fce0f13302?w=800&h=800&fit=crop&auto=format"
+                  alt="מערכות רכב מתקדמות - AD Systems"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy/30 to-transparent"></div>
               </div>
             </div>
           </div>
