@@ -145,8 +145,13 @@ export function isProductCompatible(
     return true;
   }
 
+  // Check for universal pattern
+  if (productCompatibility.includes('universal')) {
+    return true;
+  }
+
   // Check if vehicle matches any compatibility pattern
-  // Patterns: "brand:toyota", "brand:toyota,model:corolla", "brand:toyota,year:2020"
+  // Patterns: "brand:toyota", "brand:toyota,model:corolla", "brand:toyota,year:2020-2025"
   return productCompatibility.some(pattern => {
     const parts = pattern.split(',');
 
@@ -159,11 +164,11 @@ export function isProductCompatible(
         case 'model':
           return vehicle.model === value;
         case 'year':
-          const yearValue = parseInt(value);
           if (value.includes('-')) {
             const [min, max] = value.split('-').map(Number);
             return vehicle.year >= min && vehicle.year <= max;
           }
+          const yearValue = parseInt(value);
           return vehicle.year === yearValue;
         case 'fuel':
           return vehicle.fuelType === value;

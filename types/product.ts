@@ -42,6 +42,8 @@ export interface WooCommerceProduct {
   images: WooCommerceImage[];
   attributes: any[];
   meta_data: Array<{ key: string; value: any }>;
+  vehicle_compatibility?: string[]; // API compatibility patterns
+  universal_fit?: boolean; // Universal fit flag from API
   _links?: any;
 }
 
@@ -109,6 +111,12 @@ export function hasFreeShipping(product: WooCommerceProduct): boolean {
 
 // Get vehicle compatibility from product
 export function getVehicleCompatibility(product: WooCommerceProduct): string[] {
+  // First check API fields (new way)
+  if (product.vehicle_compatibility) {
+    return product.vehicle_compatibility;
+  }
+
+  // Fallback to meta_data (legacy)
   const meta = getProductMeta(product);
 
   // If universal fit, return empty array (compatible with all)
@@ -116,7 +124,7 @@ export function getVehicleCompatibility(product: WooCommerceProduct): string[] {
     return [];
   }
 
-  // Parse compatibility JSON
+  // Parse compatibility JSON from meta
   if (meta._vehicle_compatibility) {
     try {
       return JSON.parse(meta._vehicle_compatibility);
@@ -131,6 +139,12 @@ export function getVehicleCompatibility(product: WooCommerceProduct): string[] {
 
 // Check if product is universal fit
 export function isUniversalFit(product: WooCommerceProduct): boolean {
+  // First check API field (new way)
+  if (product.universal_fit !== undefined) {
+    return product.universal_fit;
+  }
+
+  // Fallback to meta_data (legacy)
   const meta = getProductMeta(product);
   return meta._universal_fit === 'yes';
 }
