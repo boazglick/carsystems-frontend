@@ -26,48 +26,48 @@ export default async function Home() {
       {/* Hero Section with Vehicle Selector */}
       <section className="relative bg-white overflow-hidden">
         <div className="absolute inset-0 bg-navy/5"></div>
-        <div className="container mx-auto px-4 py-20 md:py-32 relative">
-          <div className="grid gap-12 lg:grid-cols-2 items-center">
+        <div className="container mx-auto px-4 py-12 md:py-20 lg:py-32 relative">
+          <div className="grid gap-8 lg:gap-12 lg:grid-cols-2 items-center">
             {/* Text Content */}
             <div className="text-center lg:text-right">
-              <div className="inline-block mb-4 rounded-full bg-navy/10 px-4 py-2">
-                <span className="text-sm font-semibold text-navy">מערכות רכב מתקדמות #1 בישראל</span>
+              <div className="inline-block mb-4 rounded-full bg-navy/10 px-3 py-1.5 md:px-4 md:py-2">
+                <span className="text-xs md:text-sm font-semibold text-navy">מערכות רכב מתקדמות #1 בישראל</span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-navy mb-6 leading-tight">
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-navy mb-4 md:mb-6 leading-tight">
                 שדרגו את הרכב שלכם
                 <span className="block text-navy-light mt-2">לרמה הבאה</span>
               </h1>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+              <p className="text-base md:text-xl text-gray-600 mb-6 md:mb-8 leading-relaxed">
                 מולטימדיה מתקדמת, מצלמות רכב, חיישנים ואביזרים איכוtiים
                 <br className="hidden md:block" />
                 עם התקנה מקצועית ואחריות מלאה
               </p>
 
               {/* Vehicle Selector */}
-              <div className="mb-8">
+              <div className="mb-6 md:mb-8">
                 <VehicleSelector />
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start">
                 <Link
                   href="/products"
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-navy px-8 py-4 font-semibold text-white transition-all hover:bg-navy-light hover:shadow-xl"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-navy px-6 md:px-8 py-3 md:py-4 text-sm md:text-base font-semibold text-white transition-all hover:bg-navy-light hover:shadow-xl"
                 >
-                  <Star className="h-5 w-5" />
+                  <Star className="h-4 w-4 md:h-5 md:w-5" />
                   <span>צפה במוצרים מומלצים</span>
                 </Link>
                 <Link
                   href="/categories"
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-navy px-8 py-4 font-semibold text-navy transition-all hover:bg-navy hover:text-white"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-navy px-6 md:px-8 py-3 md:py-4 text-sm md:text-base font-semibold text-navy transition-all hover:bg-navy hover:text-white"
                 >
                   <span>דפדף בקטגוריות</span>
                 </Link>
               </div>
             </div>
 
-            {/* Hero Image */}
-            <div className="relative hidden lg:block">
-              <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
+            {/* Hero Image - Visible on all screens */}
+            <div className="relative order-first lg:order-last">
+              <div className="relative aspect-video lg:aspect-square rounded-2xl lg:rounded-3xl overflow-hidden shadow-xl lg:shadow-2xl">
                 <Image
                   src="https://images.unsplash.com/photo-1619405399517-d7fce0f13302?w=800&h=800&fit=crop&auto=format"
                   alt="מערכות רכב מתקדמות - AD Systems"

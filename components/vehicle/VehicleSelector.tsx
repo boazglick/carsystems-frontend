@@ -151,22 +151,22 @@ export function VehicleSelector({ onVehicleSelect, compact = false }: VehicleSel
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-      <div className="mb-6">
-        <h3 className="text-xl font-bold text-navy mb-2 flex items-center gap-2">
-          <Car className="h-6 w-6" />
+    <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6 border border-gray-100">
+      <div className="mb-4 md:mb-6">
+        <h3 className="text-lg md:text-xl font-bold text-navy mb-1 md:mb-2 flex items-center gap-2">
+          <Car className="h-5 w-5 md:h-6 md:w-6" />
           בחר את הרכב שלך
         </h3>
-        <p className="text-gray-600 text-sm">
+        <p className="text-gray-600 text-xs md:text-sm">
           לקבלת מוצרים תואמים למכונית שלך
         </p>
       </div>
 
       {/* Mode Switcher */}
-      <div className="flex gap-2 mb-6 bg-gray-100 rounded-lg p-1">
+      <div className="flex gap-1 md:gap-2 mb-4 md:mb-6 bg-gray-100 rounded-lg p-1">
         <button
           onClick={() => setMode('license')}
-          className={`flex-1 py-2.5 px-4 rounded-md font-medium transition-all ${
+          className={`flex-1 py-2 md:py-2.5 px-2 md:px-4 rounded-md text-sm md:text-base font-medium transition-all ${
             mode === 'license'
               ? 'bg-white text-navy shadow-sm'
               : 'text-gray-600 hover:text-navy'
@@ -176,7 +176,7 @@ export function VehicleSelector({ onVehicleSelect, compact = false }: VehicleSel
         </button>
         <button
           onClick={() => setMode('manual')}
-          className={`flex-1 py-2.5 px-4 rounded-md font-medium transition-all ${
+          className={`flex-1 py-2 md:py-2.5 px-2 md:px-4 rounded-md text-sm md:text-base font-medium transition-all ${
             mode === 'manual'
               ? 'bg-white text-navy shadow-sm'
               : 'text-gray-600 hover:text-navy'
@@ -192,7 +192,7 @@ export function VehicleSelector({ onVehicleSelect, compact = false }: VehicleSel
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             מספר רישוי (7-8 ספרות)
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               value={licensePlate}
@@ -200,19 +200,21 @@ export function VehicleSelector({ onVehicleSelect, compact = false }: VehicleSel
               onKeyPress={(e) => e.key === 'Enter' && handleLicensePlateSearch()}
               placeholder="12345678"
               maxLength={8}
-              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-center text-xl font-bold tracking-wider text-gray-900 placeholder:text-gray-400 focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/20"
+              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-center text-lg sm:text-xl font-bold tracking-wider text-gray-900 placeholder:text-gray-400 focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/20"
             />
             <button
               onClick={handleLicensePlateSearch}
               disabled={loading}
-              className="bg-navy text-white px-6 py-3 rounded-lg font-semibold hover:bg-navy-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="bg-navy text-white px-6 py-3 rounded-lg font-semibold hover:bg-navy-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
             >
               {loading ? (
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
               ) : (
-                <Search className="h-5 w-5" />
+                <>
+                  <Search className="h-5 w-5" />
+                  <span>חפש</span>
+                </>
               )}
-              חפש
             </button>
           </div>
         </div>
