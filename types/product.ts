@@ -112,11 +112,11 @@ export function hasFreeShipping(product: WooCommerceProduct): boolean {
 // Get vehicle compatibility from product
 export function getVehicleCompatibility(product: WooCommerceProduct): string[] {
   // First check API fields (new way)
-  if (product.vehicle_compatibility) {
+  if (product.vehicle_compatibility && product.vehicle_compatibility.length > 0) {
     return product.vehicle_compatibility;
   }
 
-  // Fallback to meta_data (legacy)
+  // Read from meta_data (where the data actually exists)
   const meta = getProductMeta(product);
 
   // If universal fit, return empty array (compatible with all)
@@ -124,10 +124,36 @@ export function getVehicleCompatibility(product: WooCommerceProduct): string[] {
     return [];
   }
 
-  // Parse compatibility JSON from meta
+  // Parse compatibility from meta - it's an array of objects like [{"brand": "mazda"}]
   if (meta._vehicle_compatibility) {
     try {
-      return JSON.parse(meta._vehicle_compatibility);
+      // If it's already an array of objects, convert to patterns
+      let compatibilityData = meta._vehicle_compatibility;
+
+      // If it's a JSON string, parse it first
+      if (typeof compatibilityData === 'string') {
+        compatibilityData = JSON.parse(compatibilityData);
+      }
+
+      // Convert array of objects to pattern strings
+      if (Array.isArray(compatibilityData)) {
+        return compatibilityData.map(item => {
+          const parts: string[] = [];
+
+          if (item.brand) parts.push(`brand:${item.brand}`);
+          if (item.model) parts.push(`model:${item.model}`);
+          if (item.year_from && item.year_to) {
+            parts.push(`year:${item.year_from}-${item.year_to}`);
+          } else if (item.year_from) {
+            parts.push(`year:${item.year_from}`);
+          }
+          if (item.fuel) parts.push(`fuel:${item.fuel}`);
+
+          return parts.join(',');
+        }).filter(pattern => pattern.length > 0);
+      }
+
+      return [];
     } catch (e) {
       console.error('Failed to parse vehicle compatibility', e);
       return [];
