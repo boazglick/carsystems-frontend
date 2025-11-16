@@ -21,18 +21,27 @@ export function Header() {
   const [showResults, setShowResults] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+      const clickedOutsideDesktop = searchRef.current && !searchRef.current.contains(target);
+      const clickedOutsideMobile = mobileSearchRef.current && !mobileSearchRef.current.contains(target);
+
+      if (clickedOutsideDesktop && clickedOutsideMobile) {
         setShowResults(false);
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   // Live search with debounce
@@ -224,7 +233,7 @@ export function Header() {
 
       {/* Mobile Search */}
       <div className="border-t px-4 py-3 md:hidden">
-        <div className="relative">
+        <div ref={mobileSearchRef} className="relative">
           <form onSubmit={handleSearch} className="relative">
             <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 pointer-events-none" />
             {isSearching && (
@@ -241,7 +250,7 @@ export function Header() {
 
           {/* Mobile Search Results Dropdown */}
           {showResults && searchQuery.trim().length >= 2 && (
-            <div className="absolute top-full mt-2 w-full bg-white rounded-lg border border-gray-200 shadow-xl max-h-80 overflow-y-auto z-50">
+            <div className="absolute top-full mt-2 w-full bg-white rounded-lg border border-gray-200 shadow-xl max-h-80 overflow-y-auto z-[60]">
               {searchResults.length > 0 ? (
                 <>
                   {searchResults.map((product) => (
@@ -249,7 +258,7 @@ export function Header() {
                       key={product.id}
                       href={`/product/${product.slug}`}
                       onClick={handleResultClick}
-                      className="flex items-center gap-2 p-2 hover:bg-gray-50 transition-colors border-b last:border-b-0"
+                      className="flex items-center gap-2 p-2 active:bg-gray-100 hover:bg-gray-50 transition-colors border-b last:border-b-0 cursor-pointer touch-manipulation"
                     >
                       {product.images && product.images[0] ? (
                         <img
@@ -271,7 +280,7 @@ export function Header() {
                   <Link
                     href={`/products?search=${encodeURIComponent(searchQuery)}`}
                     onClick={handleResultClick}
-                    className="block p-2 text-center text-sm text-navy font-semibold hover:bg-navy hover:text-white transition-colors"
+                    className="block p-2 text-center text-sm text-navy font-semibold active:bg-navy active:text-white hover:bg-navy hover:text-white transition-colors cursor-pointer touch-manipulation"
                   >
                     הצג את כל התוצאות
                   </Link>
