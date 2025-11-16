@@ -2,17 +2,20 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Truck } from 'lucide-react';
+import { Truck, Car } from 'lucide-react';
 import { WooCommerceProduct } from '@/types/product';
 import {
   calculateDiscount,
   calculateMonthlyPayment,
   hasFreeShipping,
   getProductMeta,
+  getVehicleCompatibility,
+  isUniversalFit,
 } from '@/types/product';
 import { formatPrice } from '@/lib/utils';
 import { AddToCartButton } from './AddToCartButton';
 import { BuyNowButton } from './BuyNowButton';
+import { VEHICLE_BRANDS } from '@/types/vehicle';
 
 interface ProductCardProps {
   product: WooCommerceProduct;
@@ -24,6 +27,27 @@ export function ProductCard({ product }: ProductCardProps) {
   const showFreeShipping = hasFreeShipping(product);
   const showMonthlyPayment = meta._enable_monthly_payment === 'yes';
   const months = parseInt(meta._monthly_payment_months || '12');
+
+  // Get vehicle compatibility
+  const isUniversal = isUniversalFit(product);
+  const compatibility = getVehicleCompatibility(product);
+
+  // Extract unique brands from compatibility patterns
+  const compatibleBrands = !isUniversal && compatibility.length > 0
+    ? Array.from(new Set(
+        compatibility
+          .map(pattern => {
+            const brandMatch = pattern.match(/brand:([^,]+)/);
+            return brandMatch ? brandMatch[1] : null;
+          })
+          .filter(Boolean)
+      ))
+    : [];
+
+  // Get brand display names
+  const brandNames = compatibleBrands
+    .map(brandId => VEHICLE_BRANDS.find(b => b.id === brandId)?.name || brandId)
+    .slice(0, 3); // Show max 3 brands
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
@@ -77,6 +101,24 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </h3>
         </Link>
+
+        {/* Vehicle Compatibility Badge */}
+        {isUniversal ? (
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-green">
+            <Car className="h-3.5 w-3.5" />
+            <span>מתאים לכל הרכבים</span>
+          </div>
+        ) : brandNames.length > 0 ? (
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-navy">
+            <Car className="h-3.5 w-3.5" />
+            <span>מתאים ל: {brandNames.join(', ')}{compatibleBrands.length > 3 ? '...' : ''}</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-400">
+            <Car className="h-3.5 w-3.5" />
+            <span>לא צוין התאמה</span>
+          </div>
+        )}
 
         {/* Price Section */}
         <div className="flex items-baseline gap-3">

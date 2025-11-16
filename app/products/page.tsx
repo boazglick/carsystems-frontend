@@ -87,8 +87,26 @@ function ProductsContent() {
   const filteredProducts = selectedVehicle
     ? products.filter(product => {
         const compatibility = getVehicleCompatibility(product);
-        // Universal fit products or products compatible with the selected vehicle
-        return isUniversalFit(product) || isProductCompatible(compatibility, selectedVehicle);
+        const universal = isUniversalFit(product);
+
+        // Debug logging
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`Product: ${product.name}`);
+          console.log(`  Universal fit:`, universal);
+          console.log(`  Compatibility:`, compatibility);
+          console.log(`  vehicle_compatibility (API):`, product.vehicle_compatibility);
+          console.log(`  universal_fit (API):`, product.universal_fit);
+        }
+
+        // Check compatibility (universal fit flag is passed to the function)
+        const isCompatible = isProductCompatible(compatibility, selectedVehicle, universal);
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`  Is compatible with ${selectedVehicle.brand}:`, isCompatible);
+          console.log('---');
+        }
+
+        return isCompatible;
       })
     : products;
 

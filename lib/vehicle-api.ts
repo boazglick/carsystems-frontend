@@ -150,11 +150,17 @@ export async function lookupVehicleByLicensePlate(licensePlate: string): Promise
  */
 export function isProductCompatible(
   productCompatibility: string[] | undefined,
-  vehicle: Vehicle
+  vehicle: Vehicle,
+  isUniversalFit: boolean = false
 ): boolean {
-  if (!productCompatibility || productCompatibility.length === 0) {
-    // If no compatibility data, assume universal fit
+  // Universal fit products are compatible with all vehicles
+  if (isUniversalFit) {
     return true;
+  }
+
+  // If no compatibility data and not universal, DON'T show
+  if (!productCompatibility || productCompatibility.length === 0) {
+    return false;
   }
 
   // Check for universal pattern
