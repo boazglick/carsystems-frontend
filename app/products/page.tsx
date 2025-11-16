@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ProductCard } from '@/components/product/ProductCard';
 import { WooCommerceProduct, getVehicleCompatibility, isUniversalFit } from '@/types/product';
@@ -10,14 +11,24 @@ import { isProductCompatible } from '@/lib/vehicle-api';
 import { Search, SlidersHorizontal } from 'lucide-react';
 
 export default function ProductsPage() {
+  const searchParams = useSearchParams();
+  const urlSearch = searchParams.get('search') || '';
+
   const [products, setProducts] = useState<WooCommerceProduct[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(urlSearch);
   const [sortBy, setSortBy] = useState('date');
   const [filterOnSale, setFilterOnSale] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+
+  // Update search when URL params change
+  useEffect(() => {
+    if (urlSearch) {
+      setSearch(urlSearch);
+    }
+  }, [urlSearch]);
 
   useEffect(() => {
     fetchProducts();

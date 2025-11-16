@@ -2,11 +2,23 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Search, Menu, X } from 'lucide-react';
 import { CartIcon } from './CartIcon';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
+      setSearchQuery('');
+      setMobileMenuOpen(false);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
@@ -22,14 +34,16 @@ export function Header() {
 
           {/* Search Bar - Desktop */}
           <div className="hidden flex-1 px-8 md:block">
-            <div className="relative max-w-2xl mx-auto">
-              <Search className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+            <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto">
+              <Search className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500 pointer-events-none" />
               <input
                 type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="חפש מוצרים..."
                 className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pr-10 text-right text-gray-900 placeholder:text-gray-500 focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/20"
               />
-            </div>
+            </form>
           </div>
 
           {/* Actions */}
@@ -104,14 +118,16 @@ export function Header() {
 
       {/* Mobile Search */}
       <div className="border-t px-4 py-3 md:hidden">
-        <div className="relative">
-          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+        <form onSubmit={handleSearch} className="relative">
+          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 pointer-events-none" />
           <input
             type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="חפש מוצרים..."
             className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pr-10 text-right text-sm text-gray-900 placeholder:text-gray-500 focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/20"
           />
-        </div>
+        </form>
       </div>
 
       {/* Mobile Menu */}
