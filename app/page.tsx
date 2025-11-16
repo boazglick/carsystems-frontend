@@ -26,21 +26,7 @@ export default async function Home() {
       {/* Hero Section with Vehicle Selector */}
       <section className="relative bg-white overflow-hidden">
         <div className="absolute inset-0 bg-navy/5"></div>
-        <div className="container mx-auto px-4 py-12 md:py-20 relative">
-          {/* Vehicle Selector - Top */}
-          <div className="max-w-4xl mx-auto mb-16">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-navy mb-3">
-                מצא מוצרים תואמים לרכב שלך
-              </h2>
-              <p className="text-base md:text-lg text-gray-600">
-                הזן מספר רישוי או בחר ידנית את דגם הרכב - נציג לך רק מוצרים תואמים
-              </p>
-            </div>
-            <VehicleSelector />
-          </div>
-
-          {/* Hero Content */}
+        <div className="container mx-auto px-4 py-20 md:py-32 relative">
           <div className="grid gap-12 lg:grid-cols-2 items-center">
             {/* Text Content */}
             <div className="text-center lg:text-right">
@@ -56,6 +42,20 @@ export default async function Home() {
                 <br className="hidden md:block" />
                 עם התקנה מקצועית ואחריות מלאה
               </p>
+
+              {/* Vehicle Selector */}
+              <div className="mb-8">
+                <div className="text-center lg:text-right mb-4">
+                  <h2 className="text-xl md:text-2xl font-bold text-navy mb-2">
+                    מצא מוצרים תואמים לרכב שלך
+                  </h2>
+                  <p className="text-sm md:text-base text-gray-600">
+                    הזן מספר רישוי או בחר ידנית את דגם הרכב - נציג לך רק מוצרים תואמים
+                  </p>
+                </div>
+                <VehicleSelector />
+              </div>
+
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link
                   href="/products"
