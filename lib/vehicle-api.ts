@@ -6,6 +6,19 @@ import { Vehicle } from '@/types/vehicle';
  * Map Hebrew brand names to English IDs
  */
 function mapBrandToId(hebrewBrand: string): string {
+  // Normalize: remove country suffixes and extra spaces
+  let normalized = hebrewBrand.trim();
+
+  // Remove common suffixes from government database
+  normalized = normalized.replace(/-יפן$/, '');  // Remove "-Japan"
+  normalized = normalized.replace(/-קוריאה$/, ''); // Remove "-Korea"
+  normalized = normalized.replace(/-גרמניה$/, ''); // Remove "-Germany"
+  normalized = normalized.replace(/-צרפת$/, '');  // Remove "-France"
+  normalized = normalized.replace(/-ארה"ב$/, ''); // Remove "-USA"
+  normalized = normalized.replace(/-איטליה$/, ''); // Remove "-Italy"
+  normalized = normalized.replace(/-בריטניה$/, ''); // Remove "-Britain"
+  normalized = normalized.trim();
+
   const brandMap: Record<string, string> = {
     'טויוטה': 'toyota',
     'יונדאי': 'hyundai',
@@ -29,7 +42,6 @@ function mapBrandToId(hebrewBrand: string): string {
     'סובארו': 'subaru',
   };
 
-  const normalized = hebrewBrand.trim();
   return brandMap[normalized] || normalized.toLowerCase().replace(/\s+/g, '-');
 }
 
