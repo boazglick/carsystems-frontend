@@ -45,14 +45,6 @@ export default async function Home() {
 
               {/* Vehicle Selector */}
               <div className="mb-8">
-                <div className="text-center lg:text-right mb-4">
-                  <h2 className="text-xl md:text-2xl font-bold text-navy mb-2">
-                    מצא מוצרים תואמים לרכב שלך
-                  </h2>
-                  <p className="text-sm md:text-base text-gray-600">
-                    הזן מספר רישוי או בחר ידנית את דגם הרכב - נציג לך רק מוצרים תואמים
-                  </p>
-                </div>
                 <VehicleSelector />
               </div>
 
