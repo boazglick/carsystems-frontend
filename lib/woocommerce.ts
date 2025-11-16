@@ -23,14 +23,34 @@ export async function getProducts(params?: {
   featured?: boolean;
 }) {
   try {
+    console.log('🔍 Fetching products with params:', params);
+    console.log('🌐 API Config:', {
+      url: process.env.NEXT_PUBLIC_WORDPRESS_URL,
+      hasConsumerKey: !!process.env.NEXT_PUBLIC_WC_CONSUMER_KEY,
+      hasConsumerSecret: !!process.env.NEXT_PUBLIC_WC_CONSUMER_SECRET
+    });
+
     const response = await api.get("products", params);
+
+    console.log('✅ Products fetched successfully:', {
+      count: response.data.length,
+      total: response.headers['x-wp-total']
+    });
+
     return {
       products: response.data,
       total: parseInt(response.headers['x-wp-total'] || '0'),
       totalPages: parseInt(response.headers['x-wp-totalpages'] || '1'),
     };
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.error('❌ Error fetching products:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        name: error.name,
+        stack: error.stack
+      });
+    }
     throw error;
   }
 }
