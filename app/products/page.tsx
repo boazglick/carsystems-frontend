@@ -89,22 +89,22 @@ function ProductsContent() {
         const compatibility = getVehicleCompatibility(product);
         const universal = isUniversalFit(product);
 
-        // Debug logging
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`Product: ${product.name}`);
-          console.log(`  Universal fit:`, universal);
-          console.log(`  Compatibility:`, compatibility);
-          console.log(`  vehicle_compatibility (API):`, product.vehicle_compatibility);
-          console.log(`  universal_fit (API):`, product.universal_fit);
-        }
+        // Debug logging - ALWAYS show in development
+        console.log(`Product: ${product.name}`);
+        console.log(`  Universal fit:`, universal);
+        console.log(`  Compatibility:`, compatibility);
+        console.log(`  vehicle_compatibility (API):`, product.vehicle_compatibility);
+        console.log(`  universal_fit (API):`, product.universal_fit);
+        console.log(`  Raw meta_data:`, product.meta_data?.filter(m =>
+          m.key === '_vehicle_compatibility' || m.key === '_universal_fit'
+        ));
 
-        // Check compatibility (universal fit flag is passed to the function)
-        const isCompatible = isProductCompatible(compatibility, selectedVehicle, universal);
+        // TEMPORARILY disable filtering - show all products for debugging
+        const isCompatible = true; // TODO: Re-enable filtering once API is working
+        // const isCompatible = isProductCompatible(compatibility, selectedVehicle, universal);
 
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`  Is compatible with ${selectedVehicle.brand}:`, isCompatible);
-          console.log('---');
-        }
+        console.log(`  Is compatible with ${selectedVehicle.brand}:`, isCompatible);
+        console.log('---');
 
         return isCompatible;
       })
