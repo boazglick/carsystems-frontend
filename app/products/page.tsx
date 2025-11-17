@@ -16,6 +16,7 @@ function ProductsContent() {
 
   const [products, setProducts] = useState<WooCommerceProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [search, setSearch] = useState(urlSearch);
   const [sortBy, setSortBy] = useState('date');
   const [filterOnSale, setFilterOnSale] = useState(false);
@@ -32,7 +33,7 @@ function ProductsContent() {
 
   useEffect(() => {
     fetchProducts();
-  }, [currentPage, sortBy, filterOnSale]);
+  }, [sortBy, filterOnSale]);
 
   // Auto-search with debounce
   useEffect(() => {
@@ -46,11 +47,18 @@ function ProductsContent() {
     return () => clearTimeout(timeoutId);
   }, [search]);
 
-  const fetchProducts = async () => {
-    setLoading(true);
+  const fetchProducts = async (loadMore = false) => {
+    if (loadMore) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+      setCurrentPage(1); // Reset to page 1 for new searches
+    }
+
     try {
+      const pageToFetch = loadMore ? currentPage + 1 : 1;
       const params = new URLSearchParams({
-        page: currentPage.toString(),
+        page: pageToFetch.toString(),
         per_page: '12',
         orderby: sortBy === 'price-low' ? 'price' : sortBy === 'price-high' ? 'price' : 'date',
         order: sortBy === 'price-high' ? 'desc' : 'asc',
@@ -67,19 +75,29 @@ function ProductsContent() {
       const response = await fetch(`/api/products?${params}`);
       const data = await response.json();
 
-      setProducts(data.products || []);
+      if (loadMore) {
+        // Append new products to existing ones
+        setProducts(prev => [...prev, ...(data.products || [])]);
+        setCurrentPage(pageToFetch);
+      } else {
+        // Replace products
+        setProducts(data.products || []);
+      }
+
       setTotalPages(data.totalPages || 1);
     } catch (error) {
       console.error('Error fetching products:', error);
-      setProducts([]);
+      if (!loadMore) {
+        setProducts([]);
+      }
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(1);
     fetchProducts();
   };
 
@@ -111,7 +129,7 @@ function ProductsContent() {
 
   const handleVehicleSelect = (vehicle: Vehicle | null) => {
     setSelectedVehicle(vehicle);
-    setCurrentPage(1); // Reset to first page when vehicle changes
+    // Products are already loaded, filtering happens client-side
   };
 
   return (
@@ -209,7 +227,8 @@ function ProductsContent() {
                 onClick={() => {
                   setSearch('');
                   setFilterOnSale(false);
-                  setCurrentPage(1);
+                  setSelectedVehicle(null);
+                  fetchProducts();
                 }}
                 className="mt-4 text-navy hover:underline"
               >
@@ -224,37 +243,22 @@ function ProductsContent() {
                 ))}
               </div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="mt-12 flex justify-center gap-2">
+              {/* Load More Button */}
+              {currentPage < totalPages && (
+                <div className="mt-12 flex justify-center">
                   <button
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                    disabled={currentPage === 1}
-                    className="rounded-lg border border-gray-300 px-4 py-2 font-medium hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    onClick={() => fetchProducts(true)}
+                    disabled={loadingMore}
+                    className="rounded-lg bg-navy px-8 py-4 font-semibold text-white transition-all hover:bg-navy-light disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    הקודם
-                  </button>
-
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`rounded-lg px-4 py-2 font-medium ${
-                        currentPage === page
-                          ? 'bg-navy text-white'
-                          : 'border border-gray-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                    disabled={currentPage === totalPages}
-                    className="rounded-lg border border-gray-300 px-4 py-2 font-medium hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    הבא
+                    {loadingMore ? (
+                      <span className="flex items-center gap-2">
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                        טוען עוד מוצרים...
+                      </span>
+                    ) : (
+                      `טען עוד מוצרים (עמוד ${currentPage + 1} מתוך ${totalPages})`
+                    )}
                   </button>
                 </div>
               )}
