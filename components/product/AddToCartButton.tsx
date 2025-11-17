@@ -40,7 +40,7 @@ export function AddToCartButton({
       }}
       onMouseEnter={(e) => {
         if (isInStock) {
-          e.currentTarget.style.backgroundColor = '#0a2463';
+          e.currentTarget.style.backgroundColor = '#d83e1e';
           e.currentTarget.style.color = '#ffffff';
         }
       }}
