@@ -10,7 +10,7 @@ const api = new WooCommerceRestApi({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authHeader = request.headers.get('authorization');
@@ -22,7 +22,7 @@ export async function GET(
       );
     }
 
-    const orderId = params.id;
+    const { id: orderId } = await params;
 
     // Get order details
     const { data: order } = await api.get(`orders/${orderId}`);
