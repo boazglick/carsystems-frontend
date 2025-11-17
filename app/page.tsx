@@ -35,7 +35,7 @@ export default async function Home() {
               </div>
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-navy mb-4 md:mb-6 leading-tight">
                 שדרגו את הרכב שלכם
-                <span className="block text-navy-light mt-2">לרמה הבאה</span>
+                <span className="block mt-2" style={{color: '#d83e1e'}}>לרמה הבאה</span>
               </h1>
               <p className="text-base md:text-xl text-gray-600 mb-6 md:mb-8 leading-relaxed">
                 מולטימדיה מתקדמת, מצלמות רכב, חיישנים ואביזרים איכוtiים
