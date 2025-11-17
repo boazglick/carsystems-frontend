@@ -36,15 +36,18 @@ export function BuyNowButton({
       disabled={!isInStock}
       style={{
         backgroundColor: isInStock ? '#d83e1e' : undefined,
+        color: isInStock ? '#ffffff' : undefined,
       }}
       onMouseEnter={(e) => {
         if (isInStock) {
           e.currentTarget.style.backgroundColor = '#c03518';
+          e.currentTarget.style.color = '#ffffff';
         }
       }}
       onMouseLeave={(e) => {
         if (isInStock) {
           e.currentTarget.style.backgroundColor = '#d83e1e';
+          e.currentTarget.style.color = '#ffffff';
         }
       }}
       className={`
