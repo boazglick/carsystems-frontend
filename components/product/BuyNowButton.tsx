@@ -34,11 +34,23 @@ export function BuyNowButton({
     <button
       onClick={handleBuyNow}
       disabled={!isInStock}
+      style={{
+        backgroundColor: isInStock ? '#f3f4f6' : undefined,
+      }}
+      onMouseEnter={(e) => {
+        if (isInStock) {
+          e.currentTarget.style.backgroundColor = '#e5e7eb';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (isInStock) {
+          e.currentTarget.style.backgroundColor = '#f3f4f6';
+        }
+      }}
       className={`
-        flex items-center justify-center gap-2 rounded-lg bg-navy px-6 py-3
-        font-semibold text-white transition-all
-        hover:bg-navy-light
-        disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-navy
+        flex items-center justify-center gap-2 rounded-lg px-6 py-3
+        font-semibold text-gray-900 transition-all
+        disabled:cursor-not-allowed disabled:opacity-50
         ${className}
       `}
     >
