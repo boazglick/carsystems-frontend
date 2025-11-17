@@ -25,23 +25,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Authenticate with WordPress
+    // Authenticate with custom WordPress endpoint
     const wpUrl = process.env.NEXT_PUBLIC_WP_URL || 'https://adsystems.ussl.info';
-    const authResponse = await fetch(`${wpUrl}/wp-json/wp/v2/users/me`, {
-      method: 'GET',
+    const authResponse = await fetch(`${wpUrl}/wp-json/custom/v1/login`, {
+      method: 'POST',
       headers: {
-        'Authorization': 'Basic ' + Buffer.from(`${email}:${password}`).toString('base64'),
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({ email, password }),
     });
 
     if (!authResponse.ok) {
+      const errorData = await authResponse.json();
       return NextResponse.json(
-        { success: false, message: 'אימייל או סיסמה שגויים' },
+        { success: false, message: errorData.message || 'אימייל או סיסמה שגויים' },
         { status: 401 }
       );
     }
 
-    const wpUser = await authResponse.json();
+    const authData = await authResponse.json();
+    const wpUser = authData.user;
 
     // Get customer data from WooCommerce
     const api = getWooCommerceApi();
