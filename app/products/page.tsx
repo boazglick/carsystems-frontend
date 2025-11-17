@@ -32,7 +32,7 @@ function ProductsContent() {
 
   useEffect(() => {
     fetchProducts();
-  }, [currentPage, sortBy, filterOnSale]);
+  }, [currentPage, sortBy, filterOnSale, selectedVehicle]);
 
   // Auto-search with debounce
   useEffect(() => {
@@ -49,9 +49,12 @@ function ProductsContent() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
+      // When a vehicle is selected, fetch more products to ensure we have results after filtering
+      const perPage = selectedVehicle ? '100' : '12';
+
       const params = new URLSearchParams({
-        page: currentPage.toString(),
-        per_page: '12',
+        page: selectedVehicle ? '1' : currentPage.toString(),  // Always page 1 when filtering by vehicle
+        per_page: perPage,
         orderby: sortBy === 'price-low' ? 'price' : sortBy === 'price-high' ? 'price' : 'date',
         order: sortBy === 'price-high' ? 'desc' : 'asc',
       });
@@ -68,7 +71,8 @@ function ProductsContent() {
       const data = await response.json();
 
       setProducts(data.products || []);
-      setTotalPages(data.totalPages || 1);
+      // When vehicle is selected, disable pagination (we fetched all)
+      setTotalPages(selectedVehicle ? 1 : (data.totalPages || 1));
     } catch (error) {
       console.error('Error fetching products:', error);
       setProducts([]);
