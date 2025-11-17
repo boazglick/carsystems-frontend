@@ -144,6 +144,16 @@ export default function LoginPage() {
                 <div className="h-px flex-1 bg-gray-300"></div>
               </div>
 
+              {/* Forgot Password Link */}
+              <div className="text-center mb-4">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-gray-600 hover:text-navy hover:underline"
+                >
+                  שכחתי סיסמה
+                </Link>
+              </div>
+
               {/* Register Link */}
               <div className="text-center">
                 <p className="text-gray-600">
