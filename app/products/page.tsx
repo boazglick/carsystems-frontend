@@ -99,9 +99,8 @@ function ProductsContent() {
           m.key === '_vehicle_compatibility' || m.key === '_universal_fit'
         ));
 
-        // TEMPORARILY disable filtering - show all products for debugging
-        const isCompatible = true; // TODO: Re-enable filtering once API is working
-        // const isCompatible = isProductCompatible(compatibility, selectedVehicle, universal);
+        // Check compatibility with selected vehicle
+        const isCompatible = isProductCompatible(compatibility, selectedVehicle, universal);
 
         console.log(`  Is compatible with ${selectedVehicle.brand}:`, isCompatible);
         console.log('---');
