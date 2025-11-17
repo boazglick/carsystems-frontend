@@ -254,7 +254,7 @@ export function Header() {
 
               {/* Mega Menu Panel */}
               {megaMenuOpen && (
-                <div className="absolute top-full right-0 mt-2 w-screen max-w-6xl -translate-x-1/2 left-1/2">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 w-screen max-w-6xl">
                   <div className="rounded-2xl border border-gray-200 bg-white shadow-2xl overflow-hidden">
                     <div className="grid grid-cols-12 gap-6 p-8">
                       {/* Product Categories - Left Side */}
