@@ -72,7 +72,7 @@ export function Header() {
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const mobileSearchRef = useRef<HTMLDivElement>(null);
-  const megaMenuRef = useRef<HTMLDivElement>(null);
+  const megaMenuRef = useRef<HTMLLIElement>(null);
   const router = useRouter();
 
   // Close dropdown when clicking outside
