@@ -4,8 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Search, Menu, X, Loader2, Shield, Tv, Navigation, Camera, Radar, Zap, Tag, TrendingUp, ChevronRight } from 'lucide-react';
+import { Search, Menu, X, Loader2, Shield, Tv, Navigation, Camera, Radar, Zap, Tag, TrendingUp, ChevronRight, User, LogOut } from 'lucide-react';
 import { CartIcon } from './CartIcon';
+import { useAuthStore } from '@/lib/store/authStore';
 
 interface SearchResult {
   id: number;
@@ -70,10 +71,18 @@ export function Header() {
   const [showResults, setShowResults] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const mobileSearchRef = useRef<HTMLDivElement>(null);
   const megaMenuRef = useRef<HTMLLIElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { customer, isAuthenticated, logout } = useAuthStore();
+
+  // Initialize auth on mount
+  useEffect(() => {
+    useAuthStore.persist.rehydrate();
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -82,6 +91,7 @@ export function Header() {
       const clickedOutsideDesktop = searchRef.current && !searchRef.current.contains(target);
       const clickedOutsideMobile = mobileSearchRef.current && !mobileSearchRef.current.contains(target);
       const clickedOutsideMegaMenu = megaMenuRef.current && !megaMenuRef.current.contains(target);
+      const clickedOutsideUserMenu = userMenuRef.current && !userMenuRef.current.contains(target);
 
       if (clickedOutsideDesktop && clickedOutsideMobile) {
         setShowResults(false);
@@ -89,6 +99,10 @@ export function Header() {
 
       if (clickedOutsideMegaMenu) {
         setMegaMenuOpen(false);
+      }
+
+      if (clickedOutsideUserMenu) {
+        setUserMenuOpen(false);
       }
     };
 
@@ -209,7 +223,59 @@ export function Header() {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            {/* User Menu - Desktop */}
+            <div className="hidden md:block relative" ref={userMenuRef}>
+              {isAuthenticated && customer ? (
+                <div>
+                  <button
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="flex items-center gap-2 rounded-full px-4 py-2 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-navy text-white">
+                      <User className="h-4 w-4" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">
+                      {customer.first_name}
+                    </span>
+                  </button>
+
+                  {/* Dropdown */}
+                  {userMenuOpen && (
+                    <div className="absolute left-0 top-full mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg">
+                      <Link
+                        href="/account"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-t-lg"
+                      >
+                        <User className="h-4 w-4" />
+                        <span>האזור האישי</span>
+                      </Link>
+                      <button
+                        onClick={() => {
+                          logout();
+                          setUserMenuOpen(false);
+                          router.push('/');
+                        }}
+                        className="flex w-full items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-b-lg"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>התנתק</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  className="flex items-center gap-2 rounded-full px-4 py-2 text-navy hover:bg-navy/10 transition-colors font-medium"
+                >
+                  <User className="h-5 w-5" />
+                  <span>התחבר</span>
+                </Link>
+              )}
+            </div>
+
             <CartIcon />
 
             <button
@@ -427,6 +493,42 @@ export function Header() {
 
           {/* Mobile Navigation Links */}
           <nav className="py-2">
+            {/* Mobile User Menu */}
+            {isAuthenticated && customer ? (
+              <>
+                <Link
+                  href="/account"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-navy transition-colors font-medium border-b"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-navy text-white">
+                    <User className="h-4 w-4" />
+                  </div>
+                  <span>{customer.first_name} {customer.last_name}</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false);
+                    router.push('/');
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors font-medium border-b"
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span>התנתק</span>
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 text-navy hover:bg-navy/10 transition-colors font-medium border-b"
+              >
+                <User className="h-5 w-5" />
+                <span>התחבר</span>
+              </Link>
+            )}
+
             <Link
               href="/"
               onClick={() => setMobileMenuOpen(false)}
