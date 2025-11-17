@@ -79,8 +79,12 @@ function ProductsContent() {
       const data = await response.json();
 
       if (loadMore) {
-        // Append new products to existing ones
-        setProducts(prev => [...prev, ...(data.products || [])]);
+        // Append new products, filtering out duplicates
+        setProducts(prev => {
+          const existingIds = new Set(prev.map(p => p.id));
+          const newProducts = (data.products || []).filter(p => !existingIds.has(p.id));
+          return [...prev, ...newProducts];
+        });
         setCurrentPage(pageToFetch);
       } else {
         // Replace products
