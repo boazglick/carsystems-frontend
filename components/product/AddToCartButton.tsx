@@ -34,11 +34,26 @@ export function AddToCartButton({
     <button
       onClick={handleAddToCart}
       disabled={!isInStock}
+      style={{
+        borderColor: isInStock ? '#0a2463' : undefined,
+        color: isInStock ? '#0a2463' : undefined,
+      }}
+      onMouseEnter={(e) => {
+        if (isInStock) {
+          e.currentTarget.style.backgroundColor = '#0a2463';
+          e.currentTarget.style.color = '#ffffff';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (isInStock) {
+          e.currentTarget.style.backgroundColor = 'transparent';
+          e.currentTarget.style.color = '#0a2463';
+        }
+      }}
       className={`
-        flex items-center justify-center gap-2 rounded-lg border-2 border-navy px-6 py-3
-        font-semibold text-navy transition-all
-        hover:bg-navy hover:text-white
-        disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-navy
+        flex items-center justify-center gap-2 rounded-lg border-2 px-6 py-3
+        font-semibold transition-all
+        disabled:cursor-not-allowed disabled:opacity-50
         ${className}
       `}
     >
