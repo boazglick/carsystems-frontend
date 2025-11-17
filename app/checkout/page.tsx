@@ -7,6 +7,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { useCartStore } from '@/lib/store/cartStore';
 import { formatPrice } from '@/lib/utils';
 import { Lock, CreditCard } from 'lucide-react';
+import { ErrorModal } from '@/components/checkout/ErrorModal';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function CheckoutPage() {
   const clearCart = useCartStore((state) => state.clearCart);
 
   const [loading, setLoading] = useState(false);
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' });
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -91,11 +93,17 @@ export default function CheckoutPage() {
           router.push(`/order-success?order=${result.orderId}`);
         }
       } else {
-        alert('שגיאה ביצירת ההזמנה: ' + result.error);
+        setErrorModal({
+          isOpen: true,
+          message: result.error || 'שגיאה ביצירת ההזמנה'
+        });
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      alert('אירעה שגיאה בביצוע ההזמנה');
+      setErrorModal({
+        isOpen: true,
+        message: 'אירעה שגיאה בביצוע ההזמנה. אנא נסה שוב.'
+      });
     } finally {
       setLoading(false);
     }
@@ -108,6 +116,13 @@ export default function CheckoutPage() {
 
   return (
     <MainLayout>
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({ isOpen: false, message: '' })}
+        message={errorModal.message}
+      />
+
       <div className="bg-gray-50 min-h-screen py-8">
         <div className="container mx-auto px-4">
           <h1 className="text-3xl font-bold text-navy mb-8">סיום הזמנה</h1>
