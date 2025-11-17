@@ -18,15 +18,35 @@ export async function POST(request: NextRequest) {
     // Create order in WooCommerce
     const order = await createOrder(orderWithPayment);
 
-    // Generate Grow payment URL
-    // The WordPress gateway will process this when customer is redirected
+    // Process payment via custom Grow API endpoint (headless)
     const wpBaseUrl = process.env.NEXT_PUBLIC_WP_URL || 'https://adsystems.ussl.info';
-    const checkoutUrl = `${wpBaseUrl}/checkout/order-pay/${order.id}/?pay_for_order=true&key=${order.order_key}`;
 
+    const paymentResponse = await fetch(`${wpBaseUrl}/wp-json/grow/v1/process-payment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        order_id: order.id,
+      }),
+    });
+
+    const paymentResult = await paymentResponse.json();
+
+    if (!paymentResponse.ok || !paymentResult.success) {
+      // Payment processing failed
+      return NextResponse.json({
+        success: false,
+        error: paymentResult.message || paymentResult.code || 'Failed to process payment',
+        orderId: order.id,
+      });
+    }
+
+    // Return Grow payment URL (customer will be redirected directly to Grow)
     return NextResponse.json({
       success: true,
       orderId: order.id,
-      paymentUrl: checkoutUrl, // WordPress checkout page will trigger Grow gateway
+      paymentUrl: paymentResult.payment_url, // Direct Grow payment URL
     });
   } catch (error: any) {
     console.error('Checkout error:', error);
