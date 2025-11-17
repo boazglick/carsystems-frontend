@@ -35,21 +35,21 @@ export function BuyNowButton({
       onClick={handleBuyNow}
       disabled={!isInStock}
       style={{
-        backgroundColor: isInStock ? '#f3f4f6' : undefined,
+        backgroundColor: isInStock ? '#d83e1e' : undefined,
       }}
       onMouseEnter={(e) => {
         if (isInStock) {
-          e.currentTarget.style.backgroundColor = '#e5e7eb';
+          e.currentTarget.style.backgroundColor = '#c03518';
         }
       }}
       onMouseLeave={(e) => {
         if (isInStock) {
-          e.currentTarget.style.backgroundColor = '#f3f4f6';
+          e.currentTarget.style.backgroundColor = '#d83e1e';
         }
       }}
       className={`
         flex items-center justify-center gap-2 rounded-lg px-6 py-3
-        font-semibold text-gray-900 transition-all
+        font-semibold text-white transition-all
         disabled:cursor-not-allowed disabled:opacity-50
         ${className}
       `}
