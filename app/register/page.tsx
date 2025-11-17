@@ -1,16 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useAuthStore } from '@/lib/store/authStore';
 import { UserPlus, Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react';
 import { ErrorModal } from '@/components/checkout/ErrorModal';
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const register = useAuthStore((state) => state.register);
+  const redirect = searchParams.get('redirect') || '/account';
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -55,7 +57,7 @@ export default function RegisterPage() {
 
     try {
       await register(formData);
-      router.push('/account');
+      router.push(redirect);
     } catch (error: any) {
       setErrorModal({
         isOpen: true,
@@ -254,5 +256,22 @@ export default function RegisterPage() {
         </div>
       </div>
     </MainLayout>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <MainLayout>
+        <div className="container mx-auto px-4 py-20">
+          <div className="text-center">
+            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-navy border-t-transparent"></div>
+            <p className="mt-4 text-gray-600">טוען...</p>
+          </div>
+        </div>
+      </MainLayout>
+    }>
+      <RegisterContent />
+    </Suspense>
   );
 }
