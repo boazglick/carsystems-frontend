@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -23,6 +23,9 @@ function ProductsContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+
+  // Ref for infinite scroll sentinel
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   // Update search when URL params change
   useEffect(() => {
@@ -131,6 +134,33 @@ function ProductsContent() {
     setSelectedVehicle(vehicle);
     // Products are already loaded, filtering happens client-side
   };
+
+  // Infinite scroll - load more when sentinel comes into view
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        // Load more when sentinel is visible and we have more pages and not already loading
+        if (entry.isIntersecting && currentPage < totalPages && !loadingMore && !loading) {
+          fetchProducts(true);
+        }
+      },
+      {
+        root: null, // viewport
+        rootMargin: '200px', // Start loading 200px before reaching the bottom
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(sentinel);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [currentPage, totalPages, loadingMore, loading]);
 
   return (
     <MainLayout>
@@ -243,25 +273,15 @@ function ProductsContent() {
                 ))}
               </div>
 
-              {/* Load More Button */}
-              {currentPage < totalPages && (
-                <div className="mt-12 flex justify-center">
-                  <button
-                    onClick={() => fetchProducts(true)}
-                    disabled={loadingMore}
-                    className="rounded-lg bg-navy px-8 py-4 font-semibold text-white transition-all hover:bg-navy-light disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loadingMore ? (
-                      <span className="flex items-center gap-2">
-                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                        טוען עוד מוצרים...
-                      </span>
-                    ) : (
-                      `טען עוד מוצרים (עמוד ${currentPage + 1} מתוך ${totalPages})`
-                    )}
-                  </button>
-                </div>
-              )}
+              {/* Infinite Scroll Sentinel */}
+              <div ref={sentinelRef} className="h-20 flex items-center justify-center">
+                {loadingMore && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-navy border-t-transparent"></div>
+                    <span>טוען עוד מוצרים...</span>
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
