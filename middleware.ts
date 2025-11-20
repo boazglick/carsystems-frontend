@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Routes that require authentication
-const protectedRoutes = ['/account', '/checkout'];
+const protectedRoutes = ['/account']; // Allow guest checkout
 
 // Routes that should redirect to account if already authenticated
 const authRoutes = ['/login', '/register'];
@@ -47,7 +47,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/account/:path*',
-    '/checkout/:path*',
     '/login',
     '/register',
   ],

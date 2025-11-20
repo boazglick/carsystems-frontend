@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -109,8 +109,14 @@ export default function CheckoutPage() {
     }
   };
 
+  // Redirect to cart if empty (must be in useEffect, not during render)
+  useEffect(() => {
+    if (items.length === 0) {
+      router.push('/cart');
+    }
+  }, [items.length, router]);
+
   if (items.length === 0) {
-    router.push('/cart');
     return null;
   }
 

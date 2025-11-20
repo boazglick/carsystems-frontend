@@ -5,6 +5,7 @@ import { ProductCard } from '@/components/product/ProductCard';
 import { VehicleSelector } from '@/components/vehicle/VehicleSelector';
 import { getProducts } from '@/lib/woocommerce';
 import { Truck, Shield, Wrench, Headphones, Star, TrendingUp } from 'lucide-react';
+import { getBrandLogo } from '@/lib/brand-logos';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 60; // Revalidate every 60 seconds
@@ -183,50 +184,73 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Categories Section with Images */}
+      {/* Car Brands Section */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
-              קנה לפי קטגוריה
+              קנה לפי מותג רכב
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              מצא בדיוק מה שאתה מחפש - מגוון רחב של מוצרים בכל קטגוריה
+              בחר את יצרן הרכב שלך וגלה מוצרים מותאמים במיוחד עבורו
             </p>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
             {[
-              { name: 'מערכות בטיחות', icon: '🛡️', slug: 'safety', color: 'from-blue-500/10 to-blue-600/10', iconBg: 'bg-blue-500/20', iconColor: 'text-blue-600' },
-              { name: 'מולטימדיה', icon: '📱', slug: 'multimedia', color: 'from-purple-500/10 to-purple-600/10', iconBg: 'bg-purple-500/20', iconColor: 'text-purple-600' },
-              { name: 'GPS ונווטים', icon: '🗺️', slug: 'gps', color: 'from-green-500/10 to-green-600/10', iconBg: 'bg-green-500/20', iconColor: 'text-green-600' },
-              { name: 'חיישנים', icon: '📡', slug: 'sensors', color: 'from-orange-500/10 to-orange-600/10', iconBg: 'bg-orange-500/20', iconColor: 'text-orange-600' },
-              { name: 'מצלמות רכב', icon: '📷', slug: 'cameras', color: 'from-red-500/10 to-red-600/10', iconBg: 'bg-red-500/20', iconColor: 'text-red-600' },
-              { name: 'אביזרים', icon: '🔌', slug: 'accessories', color: 'from-gray-500/10 to-gray-600/10', iconBg: 'bg-gray-500/20', iconColor: 'text-gray-600' },
-            ].map((category) => (
-              <Link
-                key={category.slug}
-                href={`/categories/${category.slug}`}
-                className={`group relative bg-gradient-to-br ${category.color} rounded-2xl p-8 transition-all hover:shadow-xl hover:-translate-y-2 overflow-hidden`}
-              >
-                <div className="relative z-10">
-                  <div className={`inline-flex rounded-2xl ${category.iconBg} p-4 mb-4 group-hover:scale-110 transition-transform`}>
-                    <span className={`text-4xl ${category.iconColor}`}>{category.icon}</span>
+              { name: 'טויוטה', nameEn: 'Toyota', slug: 'toyota' },
+              { name: 'הונדה', nameEn: 'Honda', slug: 'honda' },
+              { name: 'מאזדה', nameEn: 'Mazda', slug: 'mazda' },
+              { name: 'סובארו', nameEn: 'Subaru', slug: 'subaru' },
+              { name: 'קיה', nameEn: 'Kia', slug: 'kia' },
+              { name: 'פולקסווגן', nameEn: 'Volkswagen', slug: 'volkswagen' },
+              { name: 'סקודה', nameEn: 'Skoda', slug: 'skoda' },
+              { name: 'סיאט', nameEn: 'Seat', slug: 'seat' },
+              { name: 'פורד', nameEn: 'Ford', slug: 'ford' },
+              { name: 'פיג\'ו', nameEn: 'Peugeot', slug: 'peugeot' },
+              { name: 'מיצובישי', nameEn: 'Mitsubishi', slug: 'mitsubishi' },
+              { name: 'סוזוקי', nameEn: 'Suzuki', slug: 'suzuki' },
+            ].map((brand) => {
+              const brandLogo = getBrandLogo(brand.slug);
+              return (
+                <Link
+                  key={brand.slug}
+                  href={`/brands/${brand.slug}`}
+                  className="group relative bg-white rounded-xl p-6 transition-all hover:shadow-xl hover:-translate-y-2 border-2 border-gray-100 hover:border-navy/20"
+                >
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    {/* Brand Logo */}
+                    <div className="w-20 h-20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      {brandLogo ? (
+                        <Image
+                          src={brandLogo}
+                          alt={brand.name}
+                          width={80}
+                          height={80}
+                          className="object-contain"
+                        />
+                      ) : (
+                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-navy/5 to-navy/10 flex items-center justify-center">
+                          <span className="text-2xl font-bold text-navy">{brand.nameEn.substring(0, 2).toUpperCase()}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-center">
+                      <h3 className="text-lg font-bold text-navy mb-1">
+                        {brand.name}
+                      </h3>
+                      <p className="text-xs text-gray-500">
+                        {brand.nameEn}
+                      </p>
+                    </div>
+                    <div className="inline-flex items-center gap-1 text-xs text-navy font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span>צפה במוצרים</span>
+                      <span>←</span>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold text-navy mb-2">
-                    {category.name}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    מגוון מוצרים איכותיים במחירים מעולים
-                  </p>
-                  <div className="inline-flex items-center gap-2 text-navy font-semibold group-hover:gap-3 transition-all">
-                    <span>קנה עכשיו</span>
-                    <span>←</span>
-                  </div>
-                </div>
-                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-l from-navy/20 to-transparent"></div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>

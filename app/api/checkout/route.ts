@@ -7,21 +7,21 @@ export async function POST(request: NextRequest) {
   try {
     const orderData = await request.json();
 
-    // Add Grow as payment method
+    // Add Yaad Sarig as payment method
     const orderWithPayment = {
       ...orderData,
-      payment_method: 'grow',
-      payment_method_title: 'Grow Payment Gateway',
+      payment_method: 'yaadpay',
+      payment_method_title: 'Yaad Sarig Payment Gateway',
       set_paid: false,
     };
 
     // Create order in WooCommerce
     const order = await createOrder(orderWithPayment);
 
-    // Process payment via custom Grow API endpoint (headless)
-    const wpBaseUrl = process.env.NEXT_PUBLIC_WP_URL || 'https://adsystems.ussl.info';
+    // Process payment via custom Yaad API endpoint (headless)
+    const wpBaseUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL || 'https://adsystems.ussl.info';
 
-    const paymentResponse = await fetch(`${wpBaseUrl}/wp-json/grow/v1/process-payment`, {
+    const paymentResponse = await fetch(`${wpBaseUrl}/wp-json/yaad/v1/process-payment`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42,11 +42,11 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Return Grow payment URL (customer will be redirected directly to Grow)
+    // Return Yaad payment URL (customer will be redirected directly to Yaad)
     return NextResponse.json({
       success: true,
       orderId: order.id,
-      paymentUrl: paymentResult.payment_url, // Direct Grow payment URL
+      paymentUrl: paymentResult.payment_url,
     });
   } catch (error: any) {
     console.error('Checkout error:', error);
