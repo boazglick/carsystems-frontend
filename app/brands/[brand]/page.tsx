@@ -19,7 +19,7 @@ export default function BrandPage() {
   const brandName = brandInfo?.name || brand;
   const brandLogo = getBrandLogo(brand);
 
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
