@@ -358,13 +358,13 @@ export function Header() {
                         </div>
 
                         <Link
-                          href="/products"
+                          href="/categories"
                           className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-white transition-all hover:shadow-lg"
                           style={{backgroundColor: '#0a2463'}}
                           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ffffff'}
                           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0a2463'}
                         >
-                          <span>כל המוצרים</span>
+                          <span>כל הקטגוריות</span>
                           <ChevronRight className="h-5 w-5" />
                         </Link>
                       </div>
@@ -554,11 +554,11 @@ export function Header() {
               );
             })}
             <Link
-              href="/products"
+              href="/categories"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-navy transition-colors font-medium border-t"
             >
-              כל המוצרים
+              כל הקטגוריות
             </Link>
             <Link
               href="/page/about"

@@ -90,25 +90,99 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   const getCategoryIcon = (categorySlug: string) => {
     const icons: Record<string, string> = {
-      safety: '🛡️',
-      multimedia: '📱',
-      gps: '🗺️',
-      sensors: '📡',
-      cameras: '📷',
-      accessories: '🔌',
+      // Main categories
+      'multimedia': '📱',
+      'panels': '🖼️',
+      'car-parts': '🚗',
+      'audio': '🔊',
+      'cameras': '📷',
+      'accessories': '🔌',
+      'by-brand': '🏭',
+      // Sub-categories
+      'amplifiers': '🔊',
+      'speakers': '🔈',
+      'subwoofers': '🎵',
+      'dsp': '🎛️',
+      'cables': '🔌',
+      'mounts': '📍',
+      'trunk-openers': '🚪',
+      'steering-controls': '🎮',
+      'sensors': '📡',
+      'chargers': '🔋',
+      'canbus': '💻',
+      'frames': '🖼️',
+      'multimedia-systems': '📺',
     };
+    // Check for brand categories
+    if (categorySlug.startsWith('brand-')) {
+      return '🚗';
+    }
     return icons[categorySlug] || '📦';
   };
 
   const getCategoryName = (categorySlug: string) => {
     const names: Record<string, string> = {
-      safety: 'מערכות בטיחות',
-      multimedia: 'מולטימדיה',
-      gps: 'GPS ונווטים',
-      sensors: 'חיישנים',
-      cameras: 'מצלמות רכב',
-      accessories: 'אביזרים',
+      'multimedia': 'מערכות מולטימדיה',
+      'panels': 'פנלים למולטימדיה',
+      'car-parts': 'חלקי רכב',
+      'audio': 'מערכות שמע',
+      'cameras': 'מצלמות רכב',
+      'accessories': 'אביזרים',
+      'by-brand': 'לפי יצרן',
+      'amplifiers': 'מגברים',
+      'speakers': 'רמקולים',
+      'subwoofers': 'סאב וופרים',
+      'dsp': 'מעבדי קול',
+      'cables': 'חוטים וכבלים',
+      'mounts': 'זרועות ומחזיקים',
+      'trunk-openers': 'פותחי תא מטען',
+      'steering-controls': 'פיקודי הגה',
+      'sensors': 'חיישנים',
+      'chargers': 'מטענים',
+      'canbus': 'קנבוס',
+      'frames': 'מסגרות',
+      'multimedia-systems': 'מערכות מולטימדיה',
     };
+    // Handle brand categories
+    if (categorySlug.startsWith('brand-')) {
+      const brandName = categorySlug.replace('brand-', '');
+      const brandNames: Record<string, string> = {
+        'toyota': 'טויוטה',
+        'honda': 'הונדה',
+        'mazda': 'מאזדה',
+        'hyundai': 'יונדאי',
+        'kia': 'קיה',
+        'mercedes': 'מרצדס',
+        'bmw': 'ב.מ.וו',
+        'audi': 'אאודי',
+        'volkswagen': 'פולקסווגן',
+        'nissan': 'ניסאן',
+        'mitsubishi': 'מיצובישי',
+        'subaru': 'סובארו',
+        'suzuki': 'סוזוקי',
+        'ford': 'פורד',
+        'chevrolet': 'שברולט',
+        'jeep': "ג'יפ",
+        'peugeot': "פיג'ו",
+        'renault': 'רנו',
+        'citroen': 'סיטרואן',
+        'fiat': 'פיאט',
+        'opel': 'אופל',
+        'skoda': 'סקודה',
+        'seat': 'סיאט',
+        'lexus': 'לקסוס',
+        'infiniti': 'אינפיניטי',
+        'porsche': 'פורשה',
+        'land-rover': 'לנד רובר',
+        'volvo': 'וולוו',
+        'dacia': "דאצ'יה",
+        'dodge': "דודג'",
+        'mg': 'MG',
+        'isuzu': 'איסוזו',
+        'iveco': 'איווקו',
+      };
+      return category?.name || brandNames[brandName] || brandName;
+    }
     return category?.name || names[categorySlug] || categorySlug;
   };
 

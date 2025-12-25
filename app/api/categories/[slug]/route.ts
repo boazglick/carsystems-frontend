@@ -23,7 +23,21 @@ export async function GET(
     const search = searchParams.get('search') || '';
 
     // First, get the category by slug to find its ID
-    const allCategories = await getCategories({ per_page: 100 });
+    // Fetch multiple pages since WooCommerce has 160+ categories
+    let allCategories: any[] = [];
+    let catPage = 1;
+    let hasMore = true;
+
+    while (hasMore && catPage <= 3) { // Fetch up to 300 categories
+      const pageCategories = await getCategories({ per_page: 100, page: catPage });
+      if (pageCategories.length === 0) {
+        hasMore = false;
+      } else {
+        allCategories = [...allCategories, ...pageCategories];
+        catPage++;
+      }
+    }
+
     const category = allCategories.find((cat: any) => cat.slug === slug);
 
     if (!category) {

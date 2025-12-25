@@ -14,12 +14,12 @@ export default async function CategoriesPage() {
     console.error('Error fetching categories:', error);
   }
 
-  // Default categories if WooCommerce categories are empty
+  // Default categories matching actual WooCommerce store categories
   const defaultCategories = [
-    { slug: 'safety', name: 'מערכות בטיחות', icon: '🛡️', description: 'מערכות בטיחות מתקדמות לרכב' },
-    { slug: 'multimedia', name: 'מולטימדיה', icon: '📱', description: 'מערכות מולטימדיה ובידור לרכב' },
-    { slug: 'gps', name: 'GPS ונווטים', icon: '🗺️', description: 'מערכות ניווט GPS מתקדמות' },
-    { slug: 'sensors', name: 'חיישנים', icon: '📡', description: 'חיישני רכב וחניה' },
+    { slug: 'multimedia', name: 'מערכות מולטימדיה', icon: '📱', description: 'מערכות מולטימדיה ובידור לרכב' },
+    { slug: 'panels', name: 'פנלים למולטימדיה', icon: '🖼️', description: 'פנלים והתאמות למערכות מולטימדיה' },
+    { slug: 'car-parts', name: 'חלקי רכב', icon: '🚗', description: 'חלקי רכב ואביזרים' },
+    { slug: 'audio', name: 'מערכות שמע', icon: '🔊', description: 'מגברים, רמקולים וסאבוופרים' },
     { slug: 'cameras', name: 'מצלמות רכב', icon: '📷', description: 'מצלמות דרך ומצלמות אחוריות' },
     { slug: 'accessories', name: 'אביזרים', icon: '🔌', description: 'אביזרים ועזרים לרכב' },
   ];
@@ -28,13 +28,43 @@ export default async function CategoriesPage() {
 
   const getCategoryIcon = (slug: string) => {
     const icons: Record<string, string> = {
-      safety: '🛡️',
-      multimedia: '📱',
-      gps: '🗺️',
-      sensors: '📡',
-      cameras: '📷',
-      accessories: '🔌',
+      // Main categories
+      'multimedia': '📱',
+      'panels': '🖼️',
+      'car-parts': '🚗',
+      'audio': '🔊',
+      'cameras': '📷',
+      'accessories': '🔌',
+      'by-brand': '🏭',
+      // Sub-categories
+      'amplifiers': '🔊',
+      'speakers': '🔈',
+      'subwoofers': '🎵',
+      'dsp': '🎛️',
+      'cables': '🔌',
+      'mounts': '📍',
+      'trunk-openers': '🚪',
+      'steering-controls': '🎮',
+      'sensors': '📡',
+      'chargers': '🔋',
+      'canbus': '💻',
+      'frames': '🖼️',
+      'multimedia-systems': '📺',
+      // Brands (generic car icon)
+      'brand-toyota': '🚗',
+      'brand-honda': '🚗',
+      'brand-mazda': '🚗',
+      'brand-hyundai': '🚗',
+      'brand-kia': '🚗',
+      'brand-mercedes': '🚗',
+      'brand-bmw': '🚗',
+      'brand-audi': '🚗',
+      'brand-volkswagen': '🚗',
     };
+    // Check for brand categories
+    if (slug.startsWith('brand-')) {
+      return '🚗';
+    }
     return icons[slug] || '📦';
   };
 

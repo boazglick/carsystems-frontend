@@ -86,6 +86,7 @@ export async function getProductBySlug(slug: string) {
  */
 export async function getCategories(params?: {
   per_page?: number;
+  page?: number;
   hide_empty?: boolean;
 }) {
   try {
