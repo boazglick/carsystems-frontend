@@ -99,15 +99,15 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 border-t border-navy-light pt-8">
           <div className="flex flex-wrap justify-center gap-4 mb-4 text-sm">
-            <Link href="/page/shipping" className="text-gray-300 hover:text-white transition-colors">
+            <Link href="/shipping" className="text-gray-300 hover:text-white transition-colors">
               משלוחים
             </Link>
             <span className="text-gray-600">|</span>
-            <Link href="/page/returns" className="text-gray-300 hover:text-white transition-colors">
-              החזרות
+            <Link href="/returns" className="text-gray-300 hover:text-white transition-colors">
+              החזרות וביטולים
             </Link>
             <span className="text-gray-600">|</span>
-            <Link href="/page/privacy" className="text-gray-300 hover:text-white transition-colors">
+            <Link href="/privacy" className="text-gray-300 hover:text-white transition-colors">
               מדיניות פרטיות
             </Link>
             <span className="text-gray-600">|</span>

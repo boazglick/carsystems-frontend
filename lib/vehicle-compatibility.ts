@@ -111,19 +111,29 @@ export function filterProductsByBrand(products: any[], brand: string): any[] {
       return true;
     }
 
-    // Check if any compatibility pattern includes this brand
-    if (!product.vehicle_compatibility || product.vehicle_compatibility.length === 0) {
-      return false;
-    }
-
-    return product.vehicle_compatibility.some((patternStr: string) => {
-      if (patternStr === 'universal') {
+    // Check meta_data for _vehicle_brand (primary method)
+    if (product.meta_data && Array.isArray(product.meta_data)) {
+      const brandMeta = product.meta_data.find((m: any) => m.key === '_vehicle_brand');
+      if (brandMeta && brandMeta.value === brand) {
         return true;
       }
+    }
 
-      const pattern = parseCompatibilityPattern(patternStr);
-      return pattern.brand === brand;
-    });
+    // Fallback: Check vehicle_compatibility array if it has pattern strings
+    if (product.vehicle_compatibility && product.vehicle_compatibility.length > 0) {
+      return product.vehicle_compatibility.some((patternStr: string) => {
+        if (patternStr === 'universal') {
+          return true;
+        }
+        if (typeof patternStr === 'string') {
+          const pattern = parseCompatibilityPattern(patternStr);
+          return pattern.brand === brand;
+        }
+        return false;
+      });
+    }
+
+    return false;
   });
 }
 
