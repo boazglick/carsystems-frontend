@@ -8,7 +8,7 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-4">
           {/* Company Info */}
           <div>
-            <h3 className="mb-4 text-lg font-bold">AD Systems</h3>
+            <h3 className="mb-4 text-lg font-bold">A.D שירותי רכב</h3>
             <p className="mb-4 text-sm text-gray-300">
               מערכות רכב מתקדמות - הפתרון המושלם לרכב שלך
             </p>
@@ -42,7 +42,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/page/contact" className="text-gray-300 hover:text-white transition-colors">
+                <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">
                   צור קשר
                 </Link>
               </li>
@@ -54,18 +54,8 @@ export function Footer() {
             <h3 className="mb-4 text-lg font-bold">קטגוריות</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/categories/safety" className="text-gray-300 hover:text-white transition-colors">
-                  מערכות בטיחות
-                </Link>
-              </li>
-              <li>
                 <Link href="/categories/multimedia" className="text-gray-300 hover:text-white transition-colors">
-                  מולטימדיה
-                </Link>
-              </li>
-              <li>
-                <Link href="/categories/gps" className="text-gray-300 hover:text-white transition-colors">
-                  GPS ונווטים
+                  מערכות מולטימדיה
                 </Link>
               </li>
               <li>
@@ -82,15 +72,15 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-2 text-gray-300">
                 <Phone className="h-4 w-4" />
-                <span>03-1234567</span>
+                <a href="tel:052-272-9996" className="hover:text-white transition-colors">052-272-9996</a>
               </li>
               <li className="flex items-center gap-2 text-gray-300">
                 <Mail className="h-4 w-4" />
-                <span>info@adsystems.co.il</span>
+                <a href="mailto:info@adcars.co.il" className="hover:text-white transition-colors">info@adcars.co.il</a>
               </li>
               <li className="flex items-start gap-2 text-gray-300">
                 <MapPin className="h-4 w-4 mt-0.5" />
-                <span>תל אביב, ישראל</span>
+                <span>איתן 30, ניר צבי</span>
               </li>
             </ul>
           </div>
@@ -111,12 +101,16 @@ export function Footer() {
               מדיניות פרטיות
             </Link>
             <span className="text-gray-600">|</span>
-            <Link href="/page/accessibility" className="text-gray-300 hover:text-white transition-colors">
+            <Link href="/terms" className="text-gray-300 hover:text-white transition-colors">
+              תקנון האתר
+            </Link>
+            <span className="text-gray-600">|</span>
+            <Link href="/accessibility" className="text-gray-300 hover:text-white transition-colors">
               הצהרת נגישות
             </Link>
           </div>
           <p className="text-center text-sm text-gray-300">
-            &copy; {new Date().getFullYear()} AD Systems. כל הזכויות שמורות.
+            &copy; {new Date().getFullYear()} A.D שירותי רכב. כל הזכויות שמורות.
           </p>
         </div>
       </div>

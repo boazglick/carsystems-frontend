@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProducts, getCategories } from '@/lib/woocommerce';
 
 export const dynamic = 'force-dynamic';
+
+function getCredentials() {
+  const url = process.env.WORDPRESS_URL || process.env.NEXT_PUBLIC_WORDPRESS_URL;
+  const key = process.env.WC_CONSUMER_KEY || process.env.NEXT_PUBLIC_WC_CONSUMER_KEY;
+  const secret = process.env.WC_CONSUMER_SECRET || process.env.NEXT_PUBLIC_WC_CONSUMER_SECRET;
+  return { url, key, secret };
+}
 
 interface RouteContext {
   params: Promise<{ slug: string }>;
@@ -12,71 +18,59 @@ export async function GET(
   context: RouteContext
 ) {
   try {
+    const { url, key, secret } = getCredentials();
+    if (!url || !key || !secret) {
+      return NextResponse.json({ error: 'API not configured' }, { status: 500 });
+    }
+
     const { slug } = await context.params;
     const searchParams = request.nextUrl.searchParams;
 
-    const page = parseInt(searchParams.get('page') || '1');
-    const perPage = parseInt(searchParams.get('per_page') || '12');
+    const page = searchParams.get('page') || '1';
+    const perPage = searchParams.get('per_page') || '12';
     const orderby = searchParams.get('orderby') || 'date';
     const order = searchParams.get('order') || 'desc';
-    const onSale = searchParams.get('on_sale') === 'true';
-    const search = searchParams.get('search') || '';
+    const onSale = searchParams.get('on_sale');
+    const search = searchParams.get('search');
 
-    // First, get the category by slug to find its ID
-    // Fetch multiple pages since WooCommerce has 160+ categories
-    let allCategories: any[] = [];
-    let catPage = 1;
-    let hasMore = true;
+    // Search for the specific category by slug
+    const catResponse = await fetch(
+      `${url}/wp-json/wc/v3/products/categories?slug=${slug}&consumer_key=${key}&consumer_secret=${secret}`
+    );
 
-    while (hasMore && catPage <= 3) { // Fetch up to 300 categories
-      const pageCategories = await getCategories({ per_page: 100, page: catPage });
-      if (pageCategories.length === 0) {
-        hasMore = false;
-      } else {
-        allCategories = [...allCategories, ...pageCategories];
-        catPage++;
-      }
+    if (!catResponse.ok) {
+      return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 });
     }
 
-    const category = allCategories.find((cat: any) => cat.slug === slug);
+    const categories = await catResponse.json();
+    const category = categories[0];
 
     if (!category) {
-      return NextResponse.json(
-        { error: 'Category not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
     }
 
     // Fetch products for this category
-    const params: any = {
-      page,
-      per_page: perPage,
-      orderby,
-      order,
-      category: category.id.toString(),
-    };
+    let prodUrl = `${url}/wp-json/wc/v3/products?consumer_key=${key}&consumer_secret=${secret}&page=${page}&per_page=${perPage}&orderby=${orderby}&order=${order}&category=${category.id}`;
 
-    if (onSale) {
-      params.on_sale = true;
+    if (onSale === 'true') prodUrl += '&on_sale=true';
+    if (search) prodUrl += `&search=${encodeURIComponent(search)}`;
+
+    const prodResponse = await fetch(prodUrl);
+
+    if (!prodResponse.ok) {
+      return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
     }
 
-    if (search) {
-      params.search = search;
-    }
-
-    const result = await getProducts(params);
+    const products = await prodResponse.json();
 
     return NextResponse.json({
-      products: result.products,
-      category: category,
-      total: result.total,
-      totalPages: result.totalPages,
+      products,
+      category,
+      total: parseInt(prodResponse.headers.get('x-wp-total') || '0'),
+      totalPages: parseInt(prodResponse.headers.get('x-wp-totalpages') || '1'),
     });
   } catch (error) {
     console.error('Category API Error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch category products' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch category products' }, { status: 500 });
   }
 }

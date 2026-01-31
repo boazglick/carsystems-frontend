@@ -5,9 +5,7 @@ import { useParams } from 'next/navigation';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Car, Filter } from 'lucide-react';
-import Image from 'next/image';
 import { filterProductsByBrand } from '@/lib/vehicle-compatibility';
-import { getBrandLogo } from '@/lib/brand-logos';
 import { VEHICLE_BRANDS } from '@/types/vehicle';
 
 export default function BrandPage() {
@@ -17,7 +15,6 @@ export default function BrandPage() {
   // Get brand info from VEHICLE_BRANDS
   const brandInfo = VEHICLE_BRANDS.find(b => b.id === brand);
   const brandName = brandInfo?.name || brand;
-  const brandLogo = getBrandLogo(brand);
 
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,23 +47,13 @@ export default function BrandPage() {
   return (
     <MainLayout>
       {/* Brand Header */}
-      <section className="bg-gradient-to-b from-navy/5 to-white py-12 border-b">
+      <section className="bg-white py-12 border-b">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-24 h-24 rounded-full bg-white shadow-lg flex items-center justify-center border-4 border-navy/10 p-4">
-              {brandLogo ? (
-                <Image
-                  src={brandLogo}
-                  alt={brandName}
-                  width={80}
-                  height={80}
-                  className="object-contain"
-                />
-              ) : (
-                <span className="text-3xl font-bold text-navy">
-                  {brandName.substring(0, 2)}
-                </span>
-              )}
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-navy/10 to-navy/20 shadow-lg flex items-center justify-center border-4 border-navy/10">
+              <span className="text-3xl font-bold text-navy">
+                {brand.substring(0, 2).toUpperCase()}
+              </span>
             </div>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-navy text-center mb-4">

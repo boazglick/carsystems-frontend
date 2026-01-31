@@ -39,6 +39,28 @@ export function stripHtml(html: string): string {
 }
 
 /**
+ * Decode HTML entities (e.g., &quot; -> ", &amp; -> &)
+ */
+export function decodeHtmlEntities(text: string): string {
+  const entities: { [key: string]: string } = {
+    '&quot;': '"',
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&nbsp;': ' ',
+    '&#39;': "'",
+    '&apos;': "'",
+    '&#x27;': "'",
+    '&#8220;': '"',
+    '&#8221;': '"',
+    '&#8216;': "'",
+    '&#8217;': "'",
+  };
+
+  return text.replace(/&[#\w]+;/g, (entity) => entities[entity] || entity);
+}
+
+/**
  * Debounce function
  */
 export function debounce<T extends (...args: any[]) => any>(

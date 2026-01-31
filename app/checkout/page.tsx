@@ -1,22 +1,37 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useCartStore } from '@/lib/store/cartStore';
-import { formatPrice } from '@/lib/utils';
-import { Lock, CreditCard } from 'lucide-react';
+import { formatPrice, decodeHtmlEntities } from '@/lib/utils';
+import { Lock, CreditCard, X } from 'lucide-react';
 import { ErrorModal } from '@/components/checkout/ErrorModal';
+
+// Component to handle search params (wrapped in Suspense)
+function PaymentFailedHandler({ onPaymentFailed }: { onPaymentFailed: () => void }) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('payment_failed') === '1') {
+      onPaymentFailed();
+    }
+  }, [searchParams, onPaymentFailed]);
+
+  return null;
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
   const items = useCartStore((state) => state.items);
   const getTotal = useCartStore((state) => state.getTotal);
-  const clearCart = useCartStore((state) => state.clearCart);
 
   const [loading, setLoading] = useState(false);
   const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' });
+  const [showPaymentIframe, setShowPaymentIframe] = useState(false);
+  const [paymentIframeUrl, setPaymentIframeUrl] = useState<string>('');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -27,8 +42,55 @@ export default function CheckoutPage() {
     zipCode: '',
     notes: '',
   });
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
 
   const total = getTotal();
+
+  // Handler for payment failed
+  const handlePaymentFailed = useCallback(() => {
+    setErrorModal({
+      isOpen: true,
+      message: 'התשלום נכשל או בוטל. אנא נסה שוב.'
+    });
+  }, []);
+
+  // Listen for messages from the payment iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Only accept messages from our own origin
+      if (event.origin !== window.location.origin) return;
+
+      const { type, message } = event.data || {};
+
+      switch (type) {
+        case 'grow-success':
+          // Payment successful - iframe will redirect parent
+          break;
+        case 'grow-failure':
+        case 'grow-error':
+          setShowPaymentIframe(false);
+          setErrorModal({
+            isOpen: true,
+            message: message || 'התשלום נכשל. אנא נסה שוב.'
+          });
+          break;
+        case 'grow-cancel':
+        case 'grow-close':
+          setShowPaymentIframe(false);
+          break;
+        case 'grow-timeout':
+          setShowPaymentIframe(false);
+          setErrorModal({
+            isOpen: true,
+            message: 'פג תוקף הזמן לתשלום. אנא נסה שוב.'
+          });
+          break;
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -65,6 +127,7 @@ export default function CheckoutPage() {
         line_items: items.map((item) => ({
           product_id: item.product.id,
           quantity: item.quantity,
+          ...(item.variation && { variation_id: item.variation.id }),
         })),
         customer_note: formData.notes,
       };
@@ -80,23 +143,22 @@ export default function CheckoutPage() {
 
       const result = await response.json();
 
-      if (result.success) {
-        // Clear cart
-        clearCart();
+      if (result.success && result.authCode) {
+        // Build iframe URL with payment parameters
+        const successUrl = result.successUrl || `/order-success?order=${result.orderId}`;
+        const cancelUrl = `/checkout?payment_failed=1&order=${result.orderId}`;
 
-        // Redirect to success page or Grow payment page
-        if (result.paymentUrl) {
-          // Redirect to Grow payment
-          window.location.href = result.paymentUrl;
-        } else {
-          // Redirect to success page
-          router.push(`/order-success?order=${result.orderId}`);
-        }
+        const iframeUrl = `/grow-payment.html?authCode=${encodeURIComponent(result.authCode)}&successUrl=${encodeURIComponent(successUrl)}&cancelUrl=${encodeURIComponent(cancelUrl)}`;
+
+        setPaymentIframeUrl(iframeUrl);
+        setShowPaymentIframe(true);
+        setLoading(false);
       } else {
         setErrorModal({
           isOpen: true,
           message: result.error || 'שגיאה ביצירת ההזמנה'
         });
+        setLoading(false);
       }
     } catch (error) {
       console.error('Checkout error:', error);
@@ -104,30 +166,64 @@ export default function CheckoutPage() {
         isOpen: true,
         message: 'אירעה שגיאה בביצוע ההזמנה. אנא נסה שוב.'
       });
-    } finally {
       setLoading(false);
     }
   };
 
   // Redirect to cart if empty (must be in useEffect, not during render)
+  // Don't redirect if payment iframe is showing
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && !showPaymentIframe) {
       router.push('/cart');
     }
-  }, [items.length, router]);
+  }, [items.length, router, showPaymentIframe]);
 
-  if (items.length === 0) {
+  // Don't render null if payment is in progress
+  if (items.length === 0 && !showPaymentIframe) {
     return null;
   }
 
   return (
     <MainLayout>
+      {/* Handle payment_failed query param */}
+      <Suspense fallback={null}>
+        <PaymentFailedHandler onPaymentFailed={handlePaymentFailed} />
+      </Suspense>
+
       {/* Error Modal */}
       <ErrorModal
         isOpen={errorModal.isOpen}
         onClose={() => setErrorModal({ isOpen: false, message: '' })}
         message={errorModal.message}
       />
+
+      {/* Payment Iframe Modal */}
+      {showPaymentIframe && (
+        <div className="fixed inset-0 bg-black/50 z-[99999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg w-full max-w-lg h-[80vh] max-h-[700px] flex flex-col shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">תשלום מאובטח</h3>
+              <button
+                onClick={() => setShowPaymentIframe(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="סגור"
+              >
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            {/* Iframe */}
+            <div className="flex-1 overflow-hidden">
+              <iframe
+                src={paymentIframeUrl}
+                className="w-full h-full border-0"
+                title="תשלום מאובטח"
+                allow="payment"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="bg-gray-50 min-h-screen py-8">
         <div className="container mx-auto px-4">
@@ -278,29 +374,48 @@ export default function CheckoutPage() {
 
                   {/* Order Items */}
                   <div className="space-y-3 border-b pb-4 mb-4">
-                    {items.map((item) => (
-                      <div key={item.product.id} className="flex gap-3">
-                        <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                          <Image
-                            src={item.product.images[0]?.src || '/placeholder.svg'}
-                            alt={item.product.name}
-                            fill
-                            className="object-cover"
-                          />
+                    {items.map((item) => {
+                      const itemPrice = item.variation
+                        ? parseFloat(item.variation.price)
+                        : parseFloat(item.product.price);
+                      const itemKey = item.variation
+                        ? `${item.product.id}-${item.variation.id}`
+                        : `${item.product.id}`;
+
+                      return (
+                        <div key={itemKey} className="flex gap-3">
+                          <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                            <Image
+                              src={item.product.images[0]?.src || '/placeholder.svg'}
+                              alt={decodeHtmlEntities(item.product.name)}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900 line-clamp-2">
+                              {decodeHtmlEntities(item.product.name)}
+                            </p>
+                            {item.variation && item.variation.attributes.length > 0 && (
+                              <p className="text-xs text-gray-500">
+                                {item.variation.attributes.map((attr, idx) => (
+                                  <span key={attr.name}>
+                                    {attr.option}
+                                    {idx < item.variation!.attributes.length - 1 && ' / '}
+                                  </span>
+                                ))}
+                              </p>
+                            )}
+                            <p className="text-sm text-gray-500">
+                              כמות: {item.quantity}
+                            </p>
+                          </div>
+                          <div className="text-sm font-semibold text-navy">
+                            {formatPrice(itemPrice * item.quantity)}
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 line-clamp-2">
-                            {item.product.name}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            כמות: {item.quantity}
-                          </p>
-                        </div>
-                        <div className="text-sm font-semibold text-navy">
-                          {formatPrice(parseFloat(item.product.price) * item.quantity)}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {/* Totals */}
@@ -320,10 +435,34 @@ export default function CheckoutPage() {
                     <span>{formatPrice(total)}</span>
                   </div>
 
+                  {/* Terms and Conditions Checkbox */}
+                  <div className="mb-6">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={agreeToTerms}
+                        onChange={(e) => setAgreeToTerms(e.target.checked)}
+                        required
+                        className="mt-1 h-5 w-5 rounded border-gray-300 text-navy focus:ring-navy cursor-pointer"
+                      />
+                      <span className="text-sm text-gray-700">
+                        קראתי ואני מסכים/ה ל
+                        <Link
+                          href="/terms"
+                          target="_blank"
+                          className="text-navy hover:underline font-medium mx-1"
+                        >
+                          תנאי השימוש ומדיניות הרכישה
+                        </Link>
+                        של האתר *
+                      </span>
+                    </label>
+                  </div>
+
                   {/* Submit Button */}
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || !agreeToTerms}
                     className="w-full flex items-center justify-center gap-2 rounded-lg bg-navy px-6 py-4 font-semibold text-white transition-all hover:bg-navy-light disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? (

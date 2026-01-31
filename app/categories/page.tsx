@@ -1,30 +1,47 @@
 import Link from 'next/link';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { getCategories } from '@/lib/woocommerce';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // Revalidate every hour
+
+async function fetchCategories() {
+  const url = process.env.WORDPRESS_URL || process.env.NEXT_PUBLIC_WORDPRESS_URL;
+  const key = process.env.WC_CONSUMER_KEY || process.env.NEXT_PUBLIC_WC_CONSUMER_KEY;
+  const secret = process.env.WC_CONSUMER_SECRET || process.env.NEXT_PUBLIC_WC_CONSUMER_SECRET;
+
+  if (!url || !key || !secret) return [];
+
+  const response = await fetch(
+    `${url}/wp-json/wc/v3/products/categories?per_page=100&hide_empty=true&consumer_key=${key}&consumer_secret=${secret}`
+  );
+
+  if (!response.ok) return [];
+  return response.json();
+}
 
 export default async function CategoriesPage() {
   let categories = [];
 
   try {
-    categories = await getCategories({ per_page: 100, hide_empty: true });
+    categories = await fetchCategories();
   } catch (error) {
     console.error('Error fetching categories:', error);
   }
 
-  // Default categories matching actual WooCommerce store categories
+  // Only show multimedia and cameras categories
+  const allowedSlugs = ['multimedia', 'cameras'];
+
   const defaultCategories = [
     { slug: 'multimedia', name: 'מערכות מולטימדיה', icon: '📱', description: 'מערכות מולטימדיה ובידור לרכב' },
-    { slug: 'panels', name: 'פנלים למולטימדיה', icon: '🖼️', description: 'פנלים והתאמות למערכות מולטימדיה' },
-    { slug: 'car-parts', name: 'חלקי רכב', icon: '🚗', description: 'חלקי רכב ואביזרים' },
-    { slug: 'audio', name: 'מערכות שמע', icon: '🔊', description: 'מגברים, רמקולים וסאבוופרים' },
     { slug: 'cameras', name: 'מצלמות רכב', icon: '📷', description: 'מצלמות דרך ומצלמות אחוריות' },
-    { slug: 'accessories', name: 'אביזרים', icon: '🔌', description: 'אביזרים ועזרים לרכב' },
   ];
 
-  const displayCategories = categories.length > 0 ? categories : defaultCategories;
+  // Filter to only allowed categories
+  const filteredCategories = categories.length > 0
+    ? categories.filter((cat: any) => allowedSlugs.includes(cat.slug))
+    : defaultCategories;
+
+  const displayCategories = filteredCategories.length > 0 ? filteredCategories : defaultCategories;
 
   const getCategoryIcon = (slug: string) => {
     const icons: Record<string, string> = {

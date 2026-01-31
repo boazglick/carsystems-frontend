@@ -18,15 +18,6 @@ interface SearchResult {
 
 const productCategories = [
   {
-    id: 'safety',
-    name: 'מערכות בטיחות',
-    slug: '/categories/safety',
-    icon: Shield,
-    description: 'מערכות התראה וניטור מתקדמות',
-    color: 'from-blue-500/10 to-blue-600/10',
-    iconColor: 'text-blue-600'
-  },
-  {
     id: 'multimedia',
     name: 'מולטימדיה',
     slug: '/categories/multimedia',
@@ -36,15 +27,6 @@ const productCategories = [
     iconColor: 'text-purple-600'
   },
   {
-    id: 'gps',
-    name: 'GPS ונווטים',
-    slug: '/categories/gps',
-    icon: Navigation,
-    description: 'מערכות ניווט חכמות',
-    color: 'from-green-500/10 to-green-600/10',
-    iconColor: 'text-green-600'
-  },
-  {
     id: 'cameras',
     name: 'מצלמות רכב',
     slug: '/categories/cameras',
@@ -52,15 +34,6 @@ const productCategories = [
     description: 'מצלמות דרך ורוורס',
     color: 'from-red-500/10 to-red-600/10',
     iconColor: 'text-red-600'
-  },
-  {
-    id: 'sensors',
-    name: 'חיישנים',
-    slug: '/categories/sensors',
-    icon: Radar,
-    description: 'חיישני רוורס וחניה',
-    color: 'from-orange-500/10 to-orange-600/10',
-    iconColor: 'text-orange-600'
   }
 ];
 
@@ -163,7 +136,7 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
             <div className="text-2xl font-bold text-navy">
-              AD Systems
+              A.D שירותי רכב
             </div>
           </Link>
 

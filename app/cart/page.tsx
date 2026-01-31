@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useCartStore } from '@/lib/store/cartStore';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, decodeHtmlEntities } from '@/lib/utils';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
 
 export default function CartPage() {
@@ -58,86 +58,108 @@ export default function CartPage() {
           <div className="grid gap-8 lg:grid-cols-3">
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
-              {items.map((item) => (
-                <div
-                  key={item.product.id}
-                  className="flex gap-4 rounded-lg bg-white p-4 shadow-sm"
-                >
-                  {/* Product Image */}
-                  <Link
-                    href={`/product/${item.product.slug}`}
-                    className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100"
-                  >
-                    <Image
-                      src={item.product.images[0]?.src || '/placeholder.svg'}
-                      alt={item.product.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </Link>
+              {items.map((item) => {
+                // Use variation price if available
+                const itemPrice = item.variation
+                  ? parseFloat(item.variation.price)
+                  : parseFloat(item.product.price);
+                const itemKey = item.variation
+                  ? `${item.product.id}-${item.variation.id}`
+                  : `${item.product.id}`;
 
-                  {/* Product Details */}
-                  <div className="flex flex-1 flex-col">
+                return (
+                  <div
+                    key={itemKey}
+                    className="flex gap-4 rounded-lg bg-white p-4 shadow-sm"
+                  >
+                    {/* Product Image */}
                     <Link
                       href={`/product/${item.product.slug}`}
-                      className="font-semibold text-gray-900 hover:text-navy line-clamp-2"
+                      className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100"
                     >
-                      {item.product.name}
+                      <Image
+                        src={item.product.images[0]?.src || '/placeholder.svg'}
+                        alt={decodeHtmlEntities(item.product.name)}
+                        fill
+                        className="object-cover"
+                      />
                     </Link>
 
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className="text-lg font-bold text-navy">
-                        {formatPrice(item.product.price)}
-                      </span>
-                      {item.product.on_sale && (
-                        <span className="text-sm text-gray-500 line-through">
-                          {formatPrice(item.product.regular_price)}
-                        </span>
-                      )}
-                    </div>
+                    {/* Product Details */}
+                    <div className="flex flex-1 flex-col">
+                      <Link
+                        href={`/product/${item.product.slug}`}
+                        className="font-semibold text-gray-900 hover:text-navy line-clamp-2"
+                      >
+                        {decodeHtmlEntities(item.product.name)}
+                      </Link>
 
-                    <div className="mt-auto flex items-center justify-between pt-4">
-                      {/* Quantity Controls */}
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.product.id, item.quantity - 1)
-                          }
-                          className="rounded-lg border border-gray-300 bg-white p-1.5 text-gray-700 hover:bg-gray-100 hover:text-navy transition-colors"
-                        >
-                          <Minus className="h-4 w-4" />
-                        </button>
-                        <span className="w-12 text-center font-medium text-gray-900">
-                          {item.quantity}
+                      {/* Variation Attributes */}
+                      {item.variation && item.variation.attributes.length > 0 && (
+                        <div className="mt-1 text-sm text-gray-500">
+                          {item.variation.attributes.map((attr, idx) => (
+                            <span key={attr.name}>
+                              {attr.name}: {attr.option}
+                              {idx < item.variation!.attributes.length - 1 && ' | '}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="text-lg font-bold text-navy">
+                          {formatPrice(itemPrice)}
                         </span>
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.product.id, item.quantity + 1)
-                          }
-                          className="rounded-lg border border-gray-300 bg-white p-1.5 text-gray-700 hover:bg-gray-100 hover:text-navy transition-colors"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </button>
+                        {!item.variation && item.product.on_sale && (
+                          <span className="text-sm text-gray-500 line-through">
+                            {formatPrice(item.product.regular_price)}
+                          </span>
+                        )}
                       </div>
 
-                      {/* Remove Button */}
-                      <button
-                        onClick={() => removeItem(item.product.id)}
-                        className="text-red hover:text-red/80 transition-colors"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </div>
+                      <div className="mt-auto flex items-center justify-between pt-4">
+                        {/* Quantity Controls */}
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() =>
+                              updateQuantity(item.product.id, item.quantity - 1, item.variation?.id)
+                            }
+                            className="rounded-lg border border-gray-300 bg-white p-1.5 text-gray-700 hover:bg-gray-100 hover:text-navy transition-colors"
+                          >
+                            <Minus className="h-4 w-4" />
+                          </button>
+                          <span className="w-12 text-center font-medium text-gray-900">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() =>
+                              updateQuantity(item.product.id, item.quantity + 1, item.variation?.id)
+                            }
+                            className="rounded-lg border border-gray-300 bg-white p-1.5 text-gray-700 hover:bg-gray-100 hover:text-navy transition-colors"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </button>
+                        </div>
 
-                  {/* Item Total */}
-                  <div className="text-left">
-                    <div className="font-bold text-navy">
-                      {formatPrice(parseFloat(item.product.price) * item.quantity)}
+                        {/* Remove Button */}
+                        <button
+                          onClick={() => removeItem(item.product.id, item.variation?.id)}
+                          className="text-red hover:text-red/80 transition-colors"
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Item Total */}
+                    <div className="text-left">
+                      <div className="font-bold text-navy">
+                        {formatPrice(itemPrice * item.quantity)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Order Summary */}

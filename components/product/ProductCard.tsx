@@ -12,7 +12,7 @@ import {
   getVehicleCompatibility,
   isUniversalFit,
 } from '@/types/product';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, decodeHtmlEntities } from '@/lib/utils';
 import { AddToCartButton } from './AddToCartButton';
 import { BuyNowButton } from './BuyNowButton';
 import { VEHICLE_BRANDS } from '@/types/vehicle';
@@ -98,7 +98,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Product Name */}
         <Link href={`/product/${product.slug}`}>
           <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 hover:text-navy transition-colors">
-            {product.name}
+            {decodeHtmlEntities(product.name)}
           </h3>
         </Link>
 

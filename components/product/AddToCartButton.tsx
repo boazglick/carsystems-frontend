@@ -2,28 +2,56 @@
 
 import { useState } from 'react';
 import { WooCommerceProduct } from '@/types/product';
-import { useCartStore } from '@/lib/store/cartStore';
+import { useCartStore, VariationInfo } from '@/lib/store/cartStore';
 import { ShoppingCart, Check } from 'lucide-react';
+
+interface SelectedVariation {
+  id: number;
+  price: string;
+  attributes: {
+    name: string;
+    option: string;
+  }[];
+  stock_status: string;
+}
 
 interface AddToCartButtonProps {
   product: WooCommerceProduct;
   quantity?: number;
   className?: string;
+  selectedVariation?: SelectedVariation | null;
+  disabled?: boolean;
 }
 
 export function AddToCartButton({
   product,
   quantity = 1,
-  className = ''
+  className = '',
+  selectedVariation,
+  disabled = false
 }: AddToCartButtonProps) {
   const [added, setAdded] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
-  const isInStock = product.stock_status === 'instock';
+
+  // Use variation stock status if available, otherwise product stock
+  const stockStatus = selectedVariation ? selectedVariation.stock_status : product.stock_status;
+  const isInStock = stockStatus === 'instock';
+  const isDisabled = disabled || !isInStock;
 
   const handleAddToCart = () => {
-    if (!isInStock) return;
+    if (isDisabled) return;
 
-    addItem(product, quantity);
+    // Create variation info for cart if variation is selected
+    const variationInfo: VariationInfo | undefined = selectedVariation ? {
+      id: selectedVariation.id,
+      price: selectedVariation.price,
+      attributes: selectedVariation.attributes.map(attr => ({
+        name: attr.name,
+        option: attr.option
+      }))
+    } : undefined;
+
+    addItem(product, quantity, variationInfo);
     setAdded(true);
 
     // Reset after 2 seconds
@@ -33,21 +61,21 @@ export function AddToCartButton({
   return (
     <button
       onClick={handleAddToCart}
-      disabled={!isInStock}
+      disabled={isDisabled}
       style={{
-        backgroundColor: isInStock ? '#0a2463' : undefined,
-        color: isInStock ? '#ffffff' : undefined,
+        backgroundColor: !isDisabled ? '#0a2463' : undefined,
+        color: !isDisabled ? '#ffffff' : undefined,
         border: 'none',
       }}
       onMouseEnter={(e) => {
-        if (isInStock) {
+        if (!isDisabled) {
           e.currentTarget.style.backgroundColor = '#ffffff';
           e.currentTarget.style.color = '#0a2463';
           e.currentTarget.style.border = '2px solid #0a2463';
         }
       }}
       onMouseLeave={(e) => {
-        if (isInStock) {
+        if (!isDisabled) {
           e.currentTarget.style.backgroundColor = '#0a2463';
           e.currentTarget.style.color = '#ffffff';
           e.currentTarget.style.border = 'none';

@@ -3,20 +3,37 @@ import Image from 'next/image';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ProductCard } from '@/components/product/ProductCard';
 import { VehicleSelector } from '@/components/vehicle/VehicleSelector';
-import { getProducts } from '@/lib/woocommerce';
-import { Truck, Shield, Wrench, Headphones, Star, TrendingUp } from 'lucide-react';
-import { getBrandLogo } from '@/lib/brand-logos';
+import { Truck, Shield, Wrench, Headphones, Star, TrendingUp, FileText } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 60; // Revalidate every 60 seconds
+
+async function fetchProducts() {
+  const url = process.env.WORDPRESS_URL || process.env.NEXT_PUBLIC_WORDPRESS_URL;
+  const key = process.env.WC_CONSUMER_KEY || process.env.NEXT_PUBLIC_WC_CONSUMER_KEY;
+  const secret = process.env.WC_CONSUMER_SECRET || process.env.NEXT_PUBLIC_WC_CONSUMER_SECRET;
+
+  if (!url || !key || !secret) {
+    throw new Error('API not configured');
+  }
+
+  const response = await fetch(
+    `${url}/wp-json/wc/v3/products?per_page=9&consumer_key=${key}&consumer_secret=${secret}`
+  );
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+
+  return response.json();
+}
 
 export default async function Home() {
   let products = [];
   let error = null;
 
   try {
-    const result = await getProducts({ per_page: 8, featured: true });
-    products = result.products;
+    products = await fetchProducts();
   } catch (err) {
     console.error('Error fetching products:', err);
     error = 'לא ניתן לטעון מוצרים כרגע';
@@ -210,47 +227,34 @@ export default async function Home() {
               { name: 'פיג\'ו', nameEn: 'Peugeot', slug: 'peugeot' },
               { name: 'מיצובישי', nameEn: 'Mitsubishi', slug: 'mitsubishi' },
               { name: 'סוזוקי', nameEn: 'Suzuki', slug: 'suzuki' },
-            ].map((brand) => {
-              const brandLogo = getBrandLogo(brand.slug);
-              return (
-                <Link
-                  key={brand.slug}
-                  href={`/brands/${brand.slug}`}
-                  className="group relative bg-white rounded-xl p-6 transition-all hover:shadow-xl hover:-translate-y-2 border-2 border-gray-100 hover:border-navy/20"
-                >
-                  <div className="flex flex-col items-center justify-center gap-3">
-                    {/* Brand Logo */}
-                    <div className="w-20 h-20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      {brandLogo ? (
-                        <Image
-                          src={brandLogo}
-                          alt={brand.name}
-                          width={80}
-                          height={80}
-                          className="object-contain"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-navy/5 to-navy/10 flex items-center justify-center">
-                          <span className="text-2xl font-bold text-navy">{brand.nameEn.substring(0, 2).toUpperCase()}</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-center">
-                      <h3 className="text-lg font-bold text-navy mb-1">
-                        {brand.name}
-                      </h3>
-                      <p className="text-xs text-gray-500">
-                        {brand.nameEn}
-                      </p>
-                    </div>
-                    <div className="inline-flex items-center gap-1 text-xs text-navy font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span>צפה במוצרים</span>
-                      <span>←</span>
+            ].map((brand) => (
+              <Link
+                key={brand.slug}
+                href={`/brands/${brand.slug}`}
+                className="group relative bg-white rounded-xl p-6 transition-all hover:shadow-xl hover:-translate-y-2 border-2 border-gray-100 hover:border-navy/20"
+              >
+                <div className="flex flex-col items-center justify-center gap-3">
+                  {/* Brand Logo */}
+                  <div className="w-20 h-20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-navy/10 to-navy/20 flex items-center justify-center">
+                      <span className="text-2xl font-bold text-navy">{brand.nameEn.substring(0, 2).toUpperCase()}</span>
                     </div>
                   </div>
-                </Link>
-              );
-            })}
+                  <div className="text-center">
+                    <h3 className="text-lg font-bold text-navy mb-1">
+                      {brand.name}
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      {brand.nameEn}
+                    </p>
+                  </div>
+                  <div className="inline-flex items-center gap-1 text-xs text-navy font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span>צפה במוצרים</span>
+                    <span>←</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -286,6 +290,15 @@ export default async function Home() {
                 <p className="text-sm text-gray-600">2-3 ימי עסקים</p>
               </div>
             </div>
+            <Link href="/terms" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <div className="rounded-full bg-navy/10 p-3">
+                <FileText className="h-6 w-6 text-navy" />
+              </div>
+              <div>
+                <p className="font-bold text-gray-900">תקנון האתר</p>
+                <p className="text-sm text-gray-600">תנאי שימוש ורכישה</p>
+              </div>
+            </Link>
           </div>
         </div>
       </section>

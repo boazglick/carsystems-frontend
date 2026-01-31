@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>תשלום מאובטח</title>
+  <style>
+    /* Minimal reset - NO Tailwind */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: transparent;
+      direction: rtl;
+    }
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      color: #333;
+    }
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #0a2463;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .error {
+      color: #dc2626;
+      padding: 20px;
+      text-align: center;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">
+    <div class="loading-spinner"></div>
+    <p>טוען מערכת תשלום...</p>
+  </div>
+  <div id="error" class="error hidden"></div>
+
+  <!-- Grow SDK -->
+  <script src="https://cdn.meshulam.co.il/sdk/gs.min.js"></script>
+
+  <script>
+    // Get authCode from URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const authCode = urlParams.get('authCode');
+    const successUrl = urlParams.get('successUrl');
+    const cancelUrl = urlParams.get('cancelUrl');
+
+    function showError(message) {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('error').classList.remove('hidden');
+      document.getElementById('error').textContent = message;
+      // Notify parent
+      window.parent.postMessage({ type: 'grow-error', message: message }, '*');
+    }
+
+    function initPayment() {
+      if (!authCode) {
+        showError('חסר קוד אימות לתשלום');
+        return;
+      }
+
+      if (!window.growPayment) {
+        showError('שגיאה בטעינת מערכת התשלום');
+        return;
+      }
+
+      try {
+        // Initialize SDK
+        const config = {
+          environment: 'PRODUCTION',
+          version: '1.0',
+          events: {
+            onSuccess: function(response) {
+              console.log('Payment success:', response);
+              window.parent.postMessage({ type: 'grow-success', response: response }, '*');
+              if (successUrl) {
+                window.parent.location.href = successUrl;
+              }
+            },
+            onFailure: function(response) {
+              console.error('Payment failure:', response);
+              window.parent.postMessage({ type: 'grow-failure', response: response }, '*');
+            },
+            onError: function(response) {
+              console.error('Payment error:', response);
+              window.parent.postMessage({ type: 'grow-error', response: response }, '*');
+            },
+            onTimeout: function(response) {
+              console.error('Payment timeout:', response);
+              window.parent.postMessage({ type: 'grow-timeout', response: response }, '*');
+            },
+            onPaymentCancel: function(response) {
+              console.log('Payment cancelled:', response);
+              window.parent.postMessage({ type: 'grow-cancel', response: response }, '*');
+            },
+            onWalletChange: function(state) {
+              console.log('Wallet state:', state);
+              if (state === 'close') {
+                window.parent.postMessage({ type: 'grow-close' }, '*');
+              }
+            }
+          }
+        };
+
+        window.growPayment.init(config);
+
+        // Wait for SDK to initialize, then render payment options
+        setTimeout(function() {
+          document.getElementById('loading').classList.add('hidden');
+          window.growPayment.renderPaymentOptions(authCode);
+        }, 1000);
+
+      } catch (error) {
+        console.error('SDK init error:', error);
+        showError('שגיאה באתחול מערכת התשלום');
+      }
+    }
+
+    // Start when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPayment);
+    } else {
+      // Give SDK a moment to load
+      setTimeout(initPayment, 500);
+    }
+  </script>
+</body>
+</html>

@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { useCartStore } from '@/lib/store/cartStore';
 import { CheckCircle, Package, Home } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -12,13 +13,17 @@ function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('order');
   const [order, setOrder] = useState<any>(null);
+  const clearCart = useCartStore((state) => state.clearCart);
 
   useEffect(() => {
+    // Clear the cart when reaching success page
+    clearCart();
+
     if (orderId) {
       // Optionally fetch order details
       // For now, just show success message
     }
-  }, [orderId]);
+  }, [orderId, clearCart]);
 
   return (
     <MainLayout>

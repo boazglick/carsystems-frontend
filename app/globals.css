@@ -35,12 +35,7 @@
   --space-*: initial;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* Force light mode - no dark mode support */
 
 /* RTL Support */
 html {
@@ -56,8 +51,8 @@ html[dir="ltr"] {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: #ffffff !important;
+  color: #171717;
   font-family: var(--font-sans);
   overflow-x: hidden;
   width: 100%;
@@ -216,3 +211,5 @@ body {
   border-radius: 0.5rem !important;
   margin: 2rem 0 !important;
 }
+
+/* Grow/Meshulam Payment SDK - loaded in iframe, no CSS needed here */
